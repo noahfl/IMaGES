@@ -4,6 +4,8 @@
 
 ## $Id: AllClasses.R 450 2017-07-11 09:29:16Z mkalisch $
 
+`%nin%` = Negate(`%in%`)
+
 setClass("gAlgo",
          slots = c(call = "call",
                         n = "integer",
@@ -536,7 +538,7 @@ setRefClass("Score",
         #' @param vertex vector of vertex indices
         validate.vertex = function(vertex) {
           if (length(vertex) > 0) {
-            stopifnot(all(is.whole(vertex)))
+            stopifnot(all(sfsmisc::is.whole(vertex)))
             min.max <- range(vertex)
             stopifnot(1 <= min.max[1] && min.max[2] <= node.count())
           }
@@ -673,7 +675,13 @@ setRefClass("DataScore",
           ## Store pre-processed data
           # pp.dat$targets <<- lapply(targets, sort)
           pp.dat$target.index <<- targetList$target.index[perm]
+          base <- 10
+          nonlinear <- log(((1 + data[perm, ])/(data[perm, ])), base)
+          #print(nonlinear)
+          #print(paste("MAX: ", max(nonlinear)))
+          #pp.dat$data <<- nonlinear
           pp.dat$data <<- data[perm, ]
+          pp.dat$raw.data <<- data[perm, ]
           pp.dat$vertex.count <<- ncol(data)
           
           

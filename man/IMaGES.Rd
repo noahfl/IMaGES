@@ -44,18 +44,35 @@ new("IMaGES", matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5)
   }
     These operations are carried out and result in a global representative graph
     and a Markov Equivalence Class.
-    
-    TODO: finish
 
 }
 \value{
-  \code{IMaGES} returns a list with the following two components:
-  \item{essgraph}{An object of class \code{\linkS4class{EssGraph}} containing an
-    estimate of the equivalence class of the underlying DAG.}
-  \item{repr}{An object of a class derived from \code{\linkS4class{ParDAG}}
-    containing a (random) representative of the estimated equivalence class.}
+  \code{IMaGES} returns a list with the following components:
+  \item{results}{A named list containing: 
+       \describe{
+       \item{\code{global}}{a named list containing \code{.graph}, the global graphNEL
+       object, and \code{.params}, the Structural Equation Modeling data for the global graph}
+       }
+       \describe{
+       \item{\code{.single.graphs}}{a list containing named lists of the same structure as above that        corresponds to each individual dataset passsed into IMaGES}
+       }
+       \describe{
+       \item{\code{.markovs}}{a list containing named lists of the same structure as above that              corresponds to each Markov Equivalence Class (the size of which is specified by the user)}
+       }
+       \describe{
+       \item{\code{.means}}{a list containing the mean values for the SEM data for each edge in
+       the graph}
+       }
+       \describe{
+       \item{\code{.std.errs}}{a list containing the standard errors for the SEM data for each edge in        the graph}
+       }}
+  \item{.graphs}{A list containing the individual graph information, including raw graph data, score information, and intermediary variables}
 }
 \references{
+  
+  J.D. Ramsey, S.J. Hanson, et al. (2010) Six problems for causal inference
+  from fMRI. \emph{NeuroImage} \bold{49}, 1545-1558.
+
   D.M. Chickering (2002).  Optimal structure identification with greedy search.
   \emph{Journal of Machine Learning Research} \bold{3}, 507--554
 
@@ -71,29 +88,42 @@ new("IMaGES", matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5)
 }
 \author{
   Noah Frazier-Logue (\email{n.frazier.logue@nyu.edu})
+  
+  Stephen Jose Hanson (\email{jose@rubic.rutgers.edu})
 }
 \seealso{
   \code{\link{plotIMGraph}}, \code{\link{plotAll}}, \code{\link{plotMarkovs}}
 }
 \examples{
 ## Load predefined data
-data(gmG)
+data(IMData)
 
-## Define the score (BIC)
-score <- new("GaussL0penObsScore", gmG8$x)
+#run IMaGES
+im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
 
-## Estimate the essential graph
-ges.fit <- ges(score)
+#plot global graph and all individual graphs with own SEM data
+plotAll(im.fits)
 
-## Plot the estimated essential graph and the true DAG
-if (require(Rgraphviz)) {
-  par(mfrow=c(1,2))
-  plot(ges.fit$essgraph, main = "Estimated CPDAG")
-  plot(gmG8$g, main = "True DAG")
-} else { ## alternative:
-  str(ges.fit, max=2)
-  as(as(ges.fit$essgraph,"graphNEL"),"Matrix")
+#plot true individual graphs as a comparison
+for (i in 1:length(true.list)) {
+  plot(true.list[[1]])
 }
+
+#plot graph with SEM data from first dataset
+plotIMGraph(im.fits$results$.single.graph[[1]])
+
+#plot MEC
+plotMarkovs(im.fits)
+
+#print mean SEM values for each edge
+print(im.fits$results$.means)
+
+#print standard errors for each edge
+print(im.fits$results$.std.errs)
+
+#look at raw data
+print(im.fits$.graphs[[1]]$.score$pp.dat$data)
 }
-\keyword{models}
+
+\keyword{IMaGES}
 \keyword{graphs}

@@ -9,7 +9,7 @@ Description: Functions for the implementation of Independent Multiple-sample
   This package is built upon the pcalg package.
 Maintainer: Noah Frazier-Logue <n.frazier.logue@nyu.edu>
 Authors@R: c(person("Steven Jose","Hanson",
-                    email="jose@rubic.rutgers.edu", role=c("aut", "cre")), person("Noah","Frazier-Logue",
+                    email="jose@rubic.rutgers.edu", role=c("aut")), person("Noah","Frazier-Logue",
                     email="n.frazier.logue@nyu.edu", role=c("aut","cre")), person("Markus","Kalisch", role=c("ctb")),
   person("Alain", "Hauser", role="ctb"),  person("Martin","Maechler", role="ctb"),
   person("Diego", "Colombo", role="ctb"), person("Doris", "Entner", role="ctb"),
@@ -25,9 +25,27 @@ Author: Noah Frazier-Logue [aut, cre], Stephen Jose Hanson [aut, cre],
   Philipp Ruetimann [ctb], Daniel Stekhoven [ctb], Manuel Schuerch [ctb]
 Depends: R (>= 3.0.2)
 LinkingTo: Rcpp (>= 0.11.0), RcppArmadillo, BH
-Imports: stats, graphics, utils, methods, abind, graph, RBGL, igraph,
-        ggm, corpcor, robustbase, vcd, Rcpp, bdsmatrix, sfsmisc, fastICA, clue, gmp, dagitty, Rgraphviz
-Suggests: MASS, Matrix, Rgraphviz, mvtnorm
+Imports: stats,
+         graphics,
+         utils,
+         methods,
+         abind,
+         graph,
+         RBGL,
+         igraph,
+         ggm,
+         robustbase,
+         vcd,
+         Rcpp,
+         bdsmatrix,
+         sfsmisc,
+         fastICA,
+         clue,
+         gmp,
+         dagitty,
+         Rgraphviz,
+         lavaan
+Suggests: 
 ByteCompile: yes
 NeedsCompilation: yes
 Encoding: UTF-8

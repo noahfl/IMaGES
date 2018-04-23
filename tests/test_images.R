@@ -4,6 +4,8 @@ library(igraph)
 library(sfsmisc)
 library(lavaan)
 library(Rgraphviz)
+library(stats)
+library(utils)
 
 
 ## Load predefined data
@@ -571,15 +573,17 @@ driver_prob <- function() {
   #create DAGS
   #im_run_dags <- create_im_dags(num_sets)
   
-  dataset1 <- make_data(0.3)
+  dataset1 <- make_data(0.28)
   dataset2 <- make_data(0.3)
-  dataset3 <- make_data(0.3)
+  dataset3 <- make_data(0.32)
   
   #create score objects
   im_run_scores <- create_scores(list(dataset1,dataset2,dataset3))
+  #matrices <- list(dataset1$x, dataset2$x, dataset3$x)
   #im_run_scores <- create_scores(list(dataset1))
   #run IMaGES
   im_fits <- new("IMaGES", scores = im_run_scores, penalty=3)
+  #im_fits <- new("IMaGES", matrices=matrices, penalty=3)
   
   
   plotAll(im_fits)
@@ -687,7 +691,8 @@ autism_driver <- function() {
   
   #get filenames 
   #filenames <- list.files("test/14-19", pattern="SB*", full.names=TRUE)
-  filenames <- list.files("test/", pattern="VA*", full.names=TRUE)
+  filenames <- list.files("test/steve", pattern="autism*", full.names=TRUE)
+  
   
   matrices = list()
   
@@ -704,10 +709,11 @@ autism_driver <- function() {
 
   
   #run IMaGES on data
-  results = new("IMaGES", matrices = matrices, penalty=3)
+  results = new("IMaGES", matrices = matrices, penalty=3, num.markovs=5)
   
   
-  plotIMGraph(results$results$.global)
+  
+  plotIMGraph(results$results$.single.graphs[[1]])
   #plotIMGraph(results$results$.alt)
   plotMarkovs(results)
   plotAll(results)

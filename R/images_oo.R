@@ -1,3 +1,5 @@
+#
+
 IMaGES <- setRefClass("IMaGES",
                       fields = list(
                         matrices="list",
@@ -343,10 +345,6 @@ IMaGES <- setRefClass("IMaGES",
                         ## Author: Noah Frazier-Logue
                         remove.global = function(src, dst) {
                           #remove edge by reassigning edge list to itself, where none of the values are *src*
-                          #print(paste("src: ", src))
-                          #print(paste("dst: ", dst))
-                          #print(paste("trueIM$global.edges[[dst]]: ", trueIM$global.edges[[dst]]))
-                          #print(paste("trueIM$global.edges[[dst]][[trueIM$global.edges[[dst]]: ", trueIM$global.edges[[dst]]))
                           trueIM$global.edges[[dst]] <- trueIM$global.edges[[dst]][trueIM$global.edges[[dst]] != src]
                         },
                         
@@ -522,8 +520,8 @@ IMaGES <- setRefClass("IMaGES",
                         ## ----------------------------------------------------------------------
                         ## Author: Noah Frazier-Logue
                         is.identical = function(graph1, graph2) {
-                          graph1 <- as_adjacency_matrix(igraph.from.graphNEL(convert(graph1)), names=FALSE)
-                          graph2 <- as_adjacency_matrix(igraph.from.graphNEL(convert(graph2)), names=FALSE)
+                          graph1 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph1)), names=FALSE)
+                          graph2 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph2)), names=FALSE)
                           
                           truth.matrix <- graph1 == graph2
                           
@@ -592,7 +590,7 @@ IMaGES <- setRefClass("IMaGES",
                                         nodes = from$.nodes,
                                         edgeL = edgeList,
                                         edgemode = "directed")
-                          return(reverseEdgeDirections(result))
+                          return(graph::reverseEdgeDirections(result))
                         },
                         
                         ## Purpose: apply structural equation modeling to a given graph
@@ -603,15 +601,17 @@ IMaGES <- setRefClass("IMaGES",
                         ## ----------------------------------------------------------------------
                         ## Author: Noah Frazier-Logue
                         apply.sem = function(converted, dataset) {
-                          graph.nodes <- igraph.from.graphNEL(converted)
+                          graph.nodes <- igraph::igraph.from.graphNEL(converted)
                           edge.list <- get.edgelist(graph.nodes)
+                          #print(edge.list[,1])
+                          #print(edge.list[,2])
                           model <- paste(edge.list[,1], "~", edge.list[,2])
 
-                          fit <- sem(model, data=data.frame(dataset))
-                          estimate <- partable(fit)$est
+                          fit <- lavaan::sem(model, data=data.frame(dataset))
+                          estimate <- lavaan::partable(fit)$est
                           estimate <- round(estimate,2)
 
-                          names(estimate) <- edgeNames(converted)
+                          names(estimate) <- graph::edgeNames(converted)
                           return(estimate)
                         },
                         
@@ -647,6 +647,15 @@ IMaGES <- setRefClass("IMaGES",
 
 IMaGES$methods(
   initialize = function(matrices = NULL, scores = NULL, penalty = 3, imscore = NULL, num.markovs=5) {
+    
+    # packages <- list("sfsmisc", "graph", "igraph", "lavaan", "Rgraphviz")
+    # 
+    # for (i in 1:length(packages)) {
+    #   if(!(packages[[i]] %in% (.packages()))) {
+    #     stop(paste("Package '", packages[[i]], "' is not loaded. Please load to use this package"))
+    #   }
+    # }
+    
     rawscores <- list()
     #handling raw matrices
     if (!is.null(matrices)) {
@@ -683,6 +692,8 @@ IMaGES$methods(
     #create list of size num.markovs
     #initialize to lowest signed int value because you can't compare
     #ints and NULL
+    num.markovs <<- num.markovs
+    
     trueIM$markovs <- rep(list(list(.graph=NULL, .score=-2147483648)), num.markovs)
     
     for (i in 1:(ncol(.graphs[[1]]$.score$pp.dat$data) * ncol(.graphs[[1]]$.score$pp.dat$data))) {
@@ -707,15 +718,23 @@ IMaGES$methods(
     params.list <- list()
     converted <- convert(list(.in.edges = graphs[[1]]$.in.edges, .nodes = .graphs[[1]]$.nodes))
     for (i in 1:length(.graphs)) {
-      params <- apply.sem(converted, .graphs[[i]]$.score$pp.dat$data)
+      params <- apply.sem(converted, .graphs[[i]]$.score$pp.dat$raw.data)
+      #removing NA data
+      for (k in 1:length(params)) {
+        if (is.na(names(params[k]))) {
+          params <- params[1:k - 1]
+          break
+        }
+      }
       params.list[[i]] <- params
       single.converted <- convert(list(.in.edges = .graphs[[i]]$.in.edges, .nodes = .graphs[[i]]$.nodes))
+      #single.converted <- converted
       single.graphs[[i]] <-list(.graph = single.converted, .params = params)
     }
     
     print("Done.")
 
-    
+    print(paste("Final IMScore: ", trueIM$score))
     global <- list(.graph = converted, .params = average.sem(params.list))
     markovs <- list()
 
@@ -733,7 +752,39 @@ IMaGES$methods(
 
     }
     
-    results <<- list(.global = global, .single.graphs = single.graphs, .markovs = markovs)
+    means <- single.graphs[[1]]$.params
+    
+    if (length(single.graphs) > 1) {
+      for (i in 2:length(single.graphs)) {
+        for (k in 1:length(single.graphs[[i]]$.params)) {
+          means[k] <- means[k] + single.graphs[[i]]$.params[k]
+        }
+      }
+    }
+
+    #means.fixed <- means
+    for (i in 1:length(means)) {
+      means[i] <- means[i] / length(.graphs)
+      # if (is.na(names(means[i]))) {
+      #   means <- means[1:i - 1]
+      #   break
+      # }
+    }
+    
+    std.errs <- means
+    
+    for (i in 1:length(means)) {
+      sum <- 0
+      for (k in 1:length(single.graphs)) {
+        difference <- (means[i] - single.graphs[[k]]$.params[i])^2
+        sum <- sum + difference
+      }
+      sigma <- sum / (length(.graphs) - 1)
+      std.err <- sigma / sqrt(sigma)
+      std.errs[i] <- std.err
+    }
+    
+    results <<- list(.global = global, .single.graphs = single.graphs, .markovs = markovs, .means = means, .std.errs = std.errs)
     return(results)
   }
 )
@@ -969,7 +1020,7 @@ plotIMGraph = function(graph.list, title="Global") {
   graph <- graph.list$.graph
   params <- graph.list$.params
   finalgraph <- agopen(graph, "", attrs=list(node=list(shape="ellipse")), edgeAttrs=list(label=params))
-  plot(finalgraph, main=title)
+  Rgraphviz::plot(finalgraph, main=title)
 }
 
 ## Purpose: plot global and individual graphs in a grid using the object
@@ -981,7 +1032,7 @@ plotIMGraph = function(graph.list, title="Global") {
 plotAll = function(im.fits) {
   single.length <- length(im.fits$results$.single.graphs)
   plot.vals <- find_dimensions(single.length + 1)
-  par(mfrow=plot.vals)
+  graphics::par(mfrow=plot.vals)
   plotIMGraph(im.fits$results$.global)
   
   for (i in 1:single.length) {
@@ -997,9 +1048,9 @@ plotAll = function(im.fits) {
 ## Author: Noah Frazier-Logue
 plotMarkovs = function(im.fits) {
   single.length <- length(im.fits$results$.markovs)
-  print(single.length)
+  #print(single.length)
   plot.vals <- find_dimensions(single.length + 1)
-  par(mfrow=plot.vals)
+  graphics::par(mfrow=plot.vals)
   plotIMGraph(im.fits$results$.global)
   
   for (i in 1:single.length) {

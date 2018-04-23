@@ -1,7 +1,11 @@
 library(IMaGES)
-library(sfsmisc)
 library(graph)
 library(igraph)
+library(sfsmisc)
+library(lavaan)
+library(Rgraphviz)
+library(stats)
+library(utils)
 
 get_gmg <- function(seed, prob) {
   p <- 20
