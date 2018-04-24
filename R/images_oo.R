@@ -780,7 +780,7 @@ IMaGES$methods(
         sum <- sum + difference
       }
       sigma <- sum / (length(.graphs) - 1)
-      std.err <- sigma / sqrt(sigma)
+      std.err <- sigma / sqrt(length(.graphs))
       std.errs[i] <- std.err
     }
     
