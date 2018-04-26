@@ -206,7 +206,7 @@ IMaGES <- setRefClass("IMaGES",
                         ## Purpose: run a particular GES phase (forward, backward, turning) on a 
                         ##          given graph
                         ## ----------------------------------------------------------------------
-                        ##' @param x
+                        ##' @param x list to find mode
                         ## ----------------------------------------------------------------------
                         ##' @return: index of mode
                         ## Author: Noah Frazier-Logue
@@ -520,13 +520,54 @@ IMaGES <- setRefClass("IMaGES",
                         ## ----------------------------------------------------------------------
                         ## Author: Noah Frazier-Logue
                         is.identical = function(graph1, graph2) {
-                          graph1 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph1)), names=FALSE)
-                          graph2 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph2)), names=FALSE)
                           
-                          truth.matrix <- graph1 == graph2
+                          ####
+                          #this implementation, while very compact, was extremely slow. my 
+                          #spaghetti implementation, while spaghetti, ends up making the program
+                          #~12x faster
+                          ####
+                          # graph1 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph1)), names=FALSE)
+                          # graph2 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph2)), names=FALSE)
+                          # 
+                          # truth.matrix <- graph1 == graph2
+                          # 
+                          # if (length(truth.matrix[truth.matrix == FALSE]) > 0) {
+                          #   return(FALSE)
+                          # }
+                          # return(TRUE)
                           
-                          if (length(truth.matrix[truth.matrix == FALSE]) > 0) {
-                            return(FALSE)
+
+                          for (i in 1:length(graph1)) {
+                            #vertex i in graph1 has edges but vertex i in 
+                            #graph 2 doesn't
+                            if ((length(graph1[[i]]) > 0)) {
+                              if (length(graph2[[i]]) == 0) {
+                                return(FALSE)
+                              }
+                            }
+                            
+                            #vertex i in graph1 has no edges but vertex i in 
+                            #graph 2 does
+                            if ((length(graph2[[i]]) > 0)) {
+                              if (length(graph1[[i]]) == 0) {
+                                return(FALSE)
+                              }
+                            }
+                            
+                            #if they actually both have edges
+                            if ((length(graph1[[i]]) > 0) && (length(graph2[[i]]) > 0)) {
+                              #if they have differing numbers of edges
+                              if (length(graph1[[i]]) != length(graph2[[i]])) {
+                                return(FALSE)
+                              }
+                              
+                              #list containing bools from element-wise comparison between
+                              #graph1[[i]] and graph2[[i]]
+                              comp.bools <- graph1[[i]] == graph2[[i]]
+                              if (!all(comp.bools)) {
+                                return(FALSE)
+                              }
+                            }
                           }
                           return(TRUE)
                         },
@@ -546,7 +587,8 @@ IMaGES <- setRefClass("IMaGES",
                           for (i in 1:length(trueIM$markovs)) {
                             if (!is.null(trueIM$markovs[[i]]$.graph)) {
                               true <- list(.in.edges=trueIM$markovs[[i]]$.graph, .nodes=graph$.nodes)
-                              if (is.identical(graph1, true)) {
+                              #TODO: this is EXTREMELY slow. find fix
+                              if (is.identical(graph1$.in.edges, true$.in.edges)) {
                                 return()
                               }
                             }
@@ -557,7 +599,6 @@ IMaGES <- setRefClass("IMaGES",
                             #exclude graphs that are identical since that's not too helpful
                             res <- (score > trueIM$markovs[[i]]$.score)
                             if (score > trueIM$markovs[[i]]$.score && !is.null(score) && !is.null(trueIM$markovs[[i]]$.score)) {
-                              converted <- convert(list(.in.edges = graph$.in.edges, .nodes = graph$.nodes))
                               markov <- list(.graph=graph$.in.edges, .score=score, .data=graph$.score$pp.dat$data)#,
                                                           #.params=apply.sem(converted, graph$.score$pp.dat$data))
                               num.markovs <<- num.markovs
@@ -602,9 +643,7 @@ IMaGES <- setRefClass("IMaGES",
                         ## Author: Noah Frazier-Logue
                         apply.sem = function(converted, dataset) {
                           graph.nodes <- igraph::igraph.from.graphNEL(converted)
-                          edge.list <- get.edgelist(graph.nodes)
-                          #print(edge.list[,1])
-                          #print(edge.list[,2])
+                          edge.list <- igraph::get.edgelist(graph.nodes)
                           model <- paste(edge.list[,1], "~", edge.list[,2])
 
                           fit <- lavaan::sem(model, data=data.frame(dataset))
@@ -623,25 +662,13 @@ IMaGES <- setRefClass("IMaGES",
                         ## ----------------------------------------------------------------------
                         ## Author: Noah Frazier-Logue
                         average.sem = function(params.list) {
-                          #use first parameter as base structure to operate on
-                          base <- params.list[[1]]
-                          if (length(params.list) == 1) {
-                            return(base)
-                          }
-                          #add values to base
-                          for (i in 2:length(params.list)) {
-                            #print(length(params.list[[i]]))
-                            for (j in 1:length(params.list[[i]])) {
-                              base[j] <- base[j] + params.list[[i]][j]
-                            }
-                          }
-                          #divide base values by number of graphs
-                          for (i in 1:length(params.list)) {
-                            base[i] <- round((base[i] / length(params.list)),2)
-                          }
-                          return(base)
+                          mat <- matrix(unlist(params.list), length(params.list), 
+                                        length(params.list[[1]]))
+                          means <- apply(rbind(mat), 2, "mean")
+                          names(means) <- names(params.list[[1]])
+                          
+                          return(means)
                         }
-
                       )
 )
 
@@ -752,6 +779,11 @@ IMaGES$methods(
 
     }
     
+    if (length(.graphs) == 1) {
+      results <<- list(.global = global, .single.graphs = single.graphs, .markovs = markovs, .means = NULL, .std.errs = NULL)
+      return(results)
+    }
+    
     means <- single.graphs[[1]]$.params
     
     if (length(single.graphs) > 1) {
@@ -765,21 +797,20 @@ IMaGES$methods(
     #means.fixed <- means
     for (i in 1:length(means)) {
       means[i] <- means[i] / length(.graphs)
-      # if (is.na(names(means[i]))) {
-      #   means <- means[1:i - 1]
-      #   break
-      # }
     }
     
     std.errs <- means
     
     for (i in 1:length(means)) {
       sum <- 0
+      #sum from 1 to k of (c_n - c_i)^2
+      #for each edge
       for (k in 1:length(single.graphs)) {
+        #(c_n - c_i)^2
         difference <- (means[i] - single.graphs[[k]]$.params[i])^2
         sum <- sum + difference
       }
-      sigma <- sum / (length(.graphs) - 1)
+      sigma <- sqrt(sum / (length(.graphs) - 1))
       std.err <- sigma / sqrt(length(.graphs))
       std.errs[i] <- std.err
     }

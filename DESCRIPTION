@@ -29,23 +29,16 @@ Imports: stats,
          graphics,
          utils,
          methods,
-         abind,
          graph,
-         RBGL,
          igraph,
          ggm,
-         robustbase,
-         vcd,
          Rcpp,
-         bdsmatrix,
          sfsmisc,
-         fastICA,
-         clue,
-         gmp,
-         dagitty,
+         lavaan,
          Rgraphviz,
-         lavaan
-Suggests: 
+         knitr
+Suggests:
+VignetteBuilder: knitr
 ByteCompile: yes
 NeedsCompilation: yes
 Encoding: UTF-8

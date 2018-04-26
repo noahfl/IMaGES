@@ -1,10 +1,10 @@
 ---
 title: "IMaGES R Package and Algorithm"
-author: "Noah Frazier-Logue, Stephen Jose Hanson"
+author: "Noah Frazier-Logue, Stephen José Hanson"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{IMaGES}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

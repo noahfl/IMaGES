@@ -70,7 +70,7 @@ importFrom("lavaan", sem, partable)
 
 importFrom("Rgraphviz", agopen, layoutGraph, renderGraph)
 
-importFrom("graphics", par)
+#importFrom("graphics", par)
 
 ###----- Exports ------------------------------------------------------
 

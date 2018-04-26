@@ -7,11 +7,10 @@
 \title{Estimate the DAG and Markov equivalence class of multiple datasets using
 the IMaGES algorithm}
 \description{
-  Estimate the DAG using the IMaGES
-  algorithm of Hanson et al (2009).
+  Estimate the DAG using the IMaGES algorithm of Ramsey, Hanson, Hanson, Halchenko, Poldrack, Glymour (2010). Adapted from 'GES' as implemented in the 'pcalg' package.
 }
 \usage{
-new("IMaGES", matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5)
+result <- IMaGES(matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5)
 }
 \arguments{
   \item{matrices}{A list of (at least one) matrix object(s) to run in the algorithm}
