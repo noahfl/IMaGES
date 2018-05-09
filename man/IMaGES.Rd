@@ -3,14 +3,13 @@
 \encoding{UTF-8}
 \concept{Independent Multi-sample Greedy Equivalence Search}
 \concept{essential graph}
-\concept{graphNEL}
 \title{Estimate the DAG and Markov equivalence class of multiple datasets using
 the IMaGES algorithm}
 \description{
   Estimate the DAG using the IMaGES algorithm of Ramsey, Hanson, Hanson, Halchenko, Poldrack, Glymour (2010). Adapted from 'GES' as implemented in the 'pcalg' package.
 }
 \usage{
-result <- IMaGES(matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5)
+  IMaGES(matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5)
 }
 \arguments{
   \item{matrices}{A list of (at least one) matrix object(s) to run in the algorithm}
@@ -120,8 +119,6 @@ print(im.fits$results$.means)
 #print standard errors for each edge
 print(im.fits$results$.std.errs)
 
-#look at raw data
-print(im.fits$.graphs[[1]]$.score$pp.dat$data)
 }
 
 \keyword{IMaGES}

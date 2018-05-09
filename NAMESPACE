@@ -168,38 +168,11 @@ export(IMaGES,
        plotAll,
        plotMarkovs)
 
-## These are "internal" i.e., in man/pcalg-internal.Rd
-## _FIXME ?_                     ---------------------
-#export(##ancTS,
-       ## has.new.coll,
-       ## ci.test,
-       ## dep.triple,
-       ## faith.check,
-       ## find.sink,
-       ## flipEdges,
-       ## minUncovCircPath,
-       ## minUncovPdPath,
-       ## minDiscrPath,
-       ## my.SpecialDag,
-       ## reach, # NB: dreach(), qreach() *are* non-internal
-       ## updateList,
-       ## FIXME{MM}: document !
-#       rfci.vStruc,
-#       allDags,
-#       amat2dag)
 
 
-exportClasses(#"pcAlgo",
-#              "fciAlgo",
-#              "gAlgo",
-#              "ParDAG",
-#              "GaussParDAG",
-#              "Score",
-#              "GaussL0penIntScore",
-#              "GaussL0penObsScore",
-#              "EssGraph",
-              "IMaGES",
-              "IMGraph")
+exportClasses(
+              "IMaGES")#,
+              #"IMGraph")
 
 #exportMethods(# needed? "coerce",# <- defined via setAs(., ..) used via  as(A, "class_B")
 #              "summary", "show", "plot")

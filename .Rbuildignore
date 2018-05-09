@@ -1,3 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-.git*
+^\.gitignore$
+^\.git$
+^cleanup$
+^test*$
+^src$
+^README\.md$
+^R/IMData\.R$
+^R/IMTrue\.R$

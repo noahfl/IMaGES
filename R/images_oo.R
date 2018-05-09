@@ -55,28 +55,12 @@ IMaGES <- setRefClass("IMaGES",
                                           "which will be disabled in future versions of the package;",
                                           "cf. ?gies.", sep = " "))
                           }
-                          # If the old calling convention was used with named arguments, "p = ..."
-                          # would assign a numerical value to "phase" (expanding arguments...)
-                          # if (is.numeric(phase)) {
-                          #   phase <- c("forward", "backward", "turning")
-                          #   warning(paste("You are using a deprecated calling convention for gies()",
-                          #                 "which will be disabled in future versions of the package;",
-                          #                 "cf. ?gies.", sep = " "))
-                          # }
-                          
-                          # Issue warning if argument 'turning' was used
+
                           if (!missing(turning)) {
                             stopifnot(is.logical(turning))
                             warning(paste0("The argument 'turning' is deprecated; please use 'phase'",
                                            "instead (cf. ?ges)"))
                             
-                            #   if (turning) {
-                            #     phase <- c("forward", "backward", "turning")
-                            #     iterate <- FALSE
-                            #   } else {
-                            #     phase <- c("forward", "backward")
-                            #     iterate <- FALSE
-                            #   }
                           }
                           
                           # Error checks
@@ -84,17 +68,7 @@ IMaGES <- setRefClass("IMaGES",
                             #print(score)
                             stop("Argument 'score' must be an instance of a class inherited from 'Score'.")
                           }
-                          #phase <- match.arg(phase, several.ok = TRUE)
-                          # TODO extend...
-                          
-                          # Catching error occurring when a user called one of the causal 
-                          # inference algorithms using the old calling conventions: try to
-                          # rearrange passed arguments, print a warning
-                          #
-                          # NOTE: old calling conventions were
-                          # (algorithm, p, targets, score) for caus.inf
-                          # (p, targets, score) for all functions allowing interventional data
-                          # (p, score) for GES
+
                           if (is.numeric(score)) {
                             # This happens when the old calling convention is used with all 
                             # mandatory arguments unnamed
@@ -136,18 +110,6 @@ IMaGES <- setRefClass("IMaGES",
                           #print("You made it this far")
                           imgraph <- new("IMGraph", nodes = labels, targets = targets, score = score)
                           return(imgraph)
-                          # if (essgraph$caus.inf(algorithm, ...)) {
-                          #   if (algorithm == "GIES") {
-                          #     ## GIES yields an essential graph; calculate a representative thereof
-                          #     list(essgraph = essgraph, repr = essgraph$repr())
-                          #   } else {
-                          #     ## GDS and SiMy yield a DAG; calculate the corresponding essential graph,
-                          #     ## although calculations may come from a model class where Markov equivalence
-                          #     ## does not hold!
-                          #     list(essgraph = dag2essgraph(essgraph$repr(), targets = targets),
-                          #          repr = essgraph$repr())
-                          #   }
-                          # } else stop("invalid 'algorithm' or \"EssGraph\" object")
                         },
                         
                         
@@ -187,8 +149,7 @@ IMaGES <- setRefClass("IMaGES",
                           }
                           max_val = max(unlist(phase_counts))
                           index = match(max_val, phase_counts)
-                          
-                          #print(paste("max val: ", max_val, " index: ", index, " phase[[index]]: ", phases[[index]]))
+
                           
                           return(phases[[index]])
                         },
@@ -198,9 +159,9 @@ IMaGES <- setRefClass("IMaGES",
                         ## Author: Noah Frazier-Logue
                         update_score = function() {
                           
-                          imscore <- IMScore()
+                          im.score <- IMScore()
                           #assign("score", imscore, envir=trueIM)
-                          trueIM$score <- imscore
+                          trueIM$score <- im.score
                         },
                         
                         ## Purpose: run a particular GES phase (forward, backward, turning) on a 
@@ -524,7 +485,7 @@ IMaGES <- setRefClass("IMaGES",
                           ####
                           #this implementation, while very compact, was extremely slow. my 
                           #spaghetti implementation, while spaghetti, ends up making the program
-                          #~12x faster
+                          #~3-12x faster (scales to the size of the input)
                           ####
                           # graph1 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph1)), names=FALSE)
                           # graph2 <- igraph::as_adjacency_matrix(igraph::igraph.from.graphNEL(convert(graph2)), names=FALSE)
@@ -587,7 +548,7 @@ IMaGES <- setRefClass("IMaGES",
                           for (i in 1:length(trueIM$markovs)) {
                             if (!is.null(trueIM$markovs[[i]]$.graph)) {
                               true <- list(.in.edges=trueIM$markovs[[i]]$.graph, .nodes=graph$.nodes)
-                              #TODO: this is EXTREMELY slow. find fix
+                              #don't include duplicate graphs 
                               if (is.identical(graph1$.in.edges, true$.in.edges)) {
                                 return()
                               }
@@ -679,7 +640,7 @@ IMaGES$methods(
     # 
     # for (i in 1:length(packages)) {
     #   if(!(packages[[i]] %in% (.packages()))) {
-    #     stop(paste("Package '", packages[[i]], "' is not loaded. Please load to use this package"))
+    #     stop(paste("Package '", packages[[i]], "' is not loaded. Please load to use IMaGES"))
     #   }
     # }
     
@@ -785,7 +746,7 @@ IMaGES$methods(
     }
     
     means <- single.graphs[[1]]$.params
-    
+     
     if (length(single.graphs) > 1) {
       for (i in 2:length(single.graphs)) {
         for (k in 1:length(single.graphs[[i]]$.params)) {

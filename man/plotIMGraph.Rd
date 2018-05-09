@@ -45,7 +45,7 @@ data(IMData)
 im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
 
 #plot individual graph
-plotIMGraph(im.fits$results$.single.graph[[1]])
+plotIMGraph(im.fits$results$.single.graph[[1]], title="Global")
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
