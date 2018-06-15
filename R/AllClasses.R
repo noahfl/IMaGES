@@ -39,10 +39,10 @@ setOldClass("amat")# our Adjacency Matrics -- are S3 classes (but want some S4 m
 
 ##' as(*, "matrix") methods --- give the adjacency matrices   with a  "type"  attribute
 ##' as(*, "amat")   methods --- adjacency matrix class "amat" with a  "type"  attribute
-setAs("pcAlgo", "matrix",
-      function(from) structure(wgtMatrix(from@graph), type = "amat.cpdag"))
-setAs("pcAlgo", "amat",
-      function(from) structure(wgtMatrix(from@graph), class = "amat", type = "cpdag"))
+# setAs("pcAlgo", "matrix",
+#       function(from) structure(wgtMatrix(from@graph), type = "amat.cpdag"))
+# setAs("pcAlgo", "amat",
+#       function(from) structure(wgtMatrix(from@graph), class = "amat", type = "cpdag"))
 
 setAs("fciAlgo", "matrix",
       function(from) structure(from@amat, type = "amat.pag"))
@@ -163,7 +163,7 @@ setMethod("plot", signature(x = "pcAlgo"),
           function(x, y, main = NULL, zvalue.lwd = FALSE,
                    lwd.max = 7, labels = NULL, ...)
 	{
-          check.Rgraphviz()
+          #check.Rgraphviz()
 
           if(is.null(main))
               main <- deparse(x@call)
@@ -197,7 +197,7 @@ setMethod("plot", signature(x = "pcAlgo"),
 setMethod("plot", signature(x = "fciAlgo"),
           function(x, y, main = NULL, ...)
       {
-          check.Rgraphviz()
+          #check.Rgraphviz()
 
           if(is.null(main))
 	      main <- deparse(x@call)

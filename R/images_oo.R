@@ -606,12 +606,36 @@ IMaGES <- setRefClass("IMaGES",
                           #print(edge.list[,1])
                           #print(edge.list[,2])
                           model <- paste(edge.list[,1], "~", edge.list[,2])
+                          print("----------")
+                          print(model)
+                          print(typeof(model))
+  
+                          estimate <- tryCatch(
+                            {
+                              fit <- lavaan::sem(model, data=data.frame(dataset))
+                              estimate <- lavaan::partable(fit)$est
+                              round(estimate,2)
 
-                          fit <- lavaan::sem(model, data=data.frame(dataset))
-                          estimate <- lavaan::partable(fit)$est
-                          estimate <- round(estimate,2)
+                            },
+                            error=function(cond) {
+                              message("Model is either singular or does not converge. Values are being
+                                      replaced with zeros.")
+                              message("Original error message:")
+                              message(cond)
+                              # Choose a return value in case of error
+                              return(repr(0,length(model)))
+                            })
+                          
+                          # fit <- lavaan::sem(model, data=data.frame(dataset))
+                          # estimate <- lavaan::partable(fit)$est
+                          # estimate <- round(estimate,2)
+                          # 
+                          # print("+++++++")
+                          # print(estimate)
+                          # print(typeof(estimate))
 
                           names(estimate) <- graph::edgeNames(converted)
+                          print(estimate)
                           return(estimate)
                         },
                         
