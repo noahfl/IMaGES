@@ -9,7 +9,8 @@ IMaGES <- setRefClass("IMaGES",
                         imscore = "numeric",
                         results="list",
                         scores = "list",
-                        num.markovs = "numeric"),
+                        num.markovs = "numeric",
+                        use.verbose = "logical"),
                    
                       methods = list(
                         
@@ -198,8 +199,16 @@ IMaGES <- setRefClass("IMaGES",
                         ## Author: Noah Frazier-Logue
                         update_score = function() {
                           
+                          if (use.verbose) {
+                            print("Updating IMScore...")
+                          }
+                          
                           imscore <- IMScore()
                           #assign("score", imscore, envir=trueIM)
+                          
+                          if (use.verbose) {
+                            print(paste("Updaed IMScore: ", imscore))
+                          }
                           trueIM$score <- imscore
                         },
                         
@@ -228,6 +237,10 @@ IMaGES <- setRefClass("IMaGES",
                           
                           opt_phases = list()
                           
+                          if (use.verbose) {
+                            print("Selecting optimal step...")
+                          }
+                          
                           #call C++ function that determines best step for each graph
                           for (j in 1:length(.graphs)) {
                             opt_phases[[j]] <- .Call("greedyStepRFunc",
@@ -247,15 +260,27 @@ IMaGES <- setRefClass("IMaGES",
                           #run_phase
                           if (opt == 1) {
                             str_opt <- 'GIES-F'
+                            if (use.verbose) {
+                              print("Forward pass selected")
+                            }
                           }
                           else if (opt == 2) {
                             str_opt <- 'GIES-B'
+                            if (use.verbose) {
+                              print("Nackward pass selected")
+                            }
                           }
                           else if (opt == 3) {
                             str_opt <- 'GIES-T'
+                            if (use.verbose) {
+                              print("Turning pass selected")
+                            }
                           }
                           else if (opt == 0) {
                             str_opt <- 'none'
+                            if (use.verbose) {
+                              print("No step selected")
+                            }
                           }
                           
                           temp.scores <- vector()
@@ -274,6 +299,10 @@ IMaGES <- setRefClass("IMaGES",
                               .graphs[[j]]$redo.step()
                               #see if graph j is in MEC
                               if (length(.graphs[[j]]$.in.edges) > 0) {
+                                
+                                if (use.verbose) {
+                                  print("Updating markov equivalence class")
+                                }
                                 update.markovs(.graphs[[j]], temp.scores[[j]])
                               }
                             }
@@ -547,6 +576,10 @@ IMaGES <- setRefClass("IMaGES",
                             if (!is.null(trueIM$markovs[[i]]$.graph)) {
                               true <- list(.in.edges=trueIM$markovs[[i]]$.graph, .nodes=graph$.nodes)
                               if (is.identical(graph1, true)) {
+                                rm(true)
+                                if (use.verbose) {
+                                 print("No new MEC found") 
+                                }
                                 return()
                               }
                             }
@@ -557,7 +590,10 @@ IMaGES <- setRefClass("IMaGES",
                             #exclude graphs that are identical since that's not too helpful
                             res <- (score > trueIM$markovs[[i]]$.score)
                             if (score > trueIM$markovs[[i]]$.score && !is.null(score) && !is.null(trueIM$markovs[[i]]$.score)) {
-                              converted <- convert(list(.in.edges = graph$.in.edges, .nodes = graph$.nodes))
+                              #converted <- convert(list(.in.edges = graph$.in.edges, .nodes = graph$.nodes))
+                              if (use.verbose) {
+                               print("New graph being inserted into MEC") 
+                              }
                               markov <- list(.graph=graph$.in.edges, .score=score, .data=graph$.score$pp.dat$data)#,
                                                           #.params=apply.sem(converted, graph$.score$pp.dat$data))
                               num.markovs <<- num.markovs
@@ -670,7 +706,7 @@ IMaGES <- setRefClass("IMaGES",
 )
 
 IMaGES$methods(
-  initialize = function(matrices = NULL, scores = NULL, penalty = 3, imscore = NULL, num.markovs=5) {
+  initialize = function(matrices = NULL, scores = NULL, penalty = 3, imscore = NULL, num.markovs=5, use.verbose=FALSE) {
     
     # packages <- list("sfsmisc", "graph", "igraph", "lavaan", "Rgraphviz")
     # 
@@ -698,6 +734,7 @@ IMaGES$methods(
       }
     }
     
+    use.verbose <<- use.verbose
     penalty <<- penalty
     .rawscores <<- rawscores
     graphs <- list()
@@ -711,6 +748,10 @@ IMaGES$methods(
     
     initialize.global()
     
+    if (use.verbose) {
+      print("Verbose mode selected.")
+    }
+    
     print("Running...")
     
     #create list of size num.markovs
@@ -719,9 +760,12 @@ IMaGES$methods(
     num.markovs <<- num.markovs
     
     trueIM$markovs <- rep(list(list(.graph=NULL, .score=-2147483648)), num.markovs)
-    
-    for (i in 1:(ncol(.graphs[[1]]$.score$pp.dat$data) * ncol(.graphs[[1]]$.score$pp.dat$data))) {
+    run.nums <- ncol(.graphs[[1]]$.score$pp.dat$data) * ncol(.graphs[[1]]$.score$pp.dat$data)
+    for (i in 1:run.nums) {
       #run IMaGES
+      if(use.verbose) {
+        print(paste("Run ", i, " of ", run.nums))
+      }
       run()
     }
     

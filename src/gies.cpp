@@ -238,6 +238,8 @@ RcppExport SEXP greedyStepRFunc(
   // Cast graph
   dout.level(1) << "Casting graph...\n";
   EssentialGraph graph = castGraph(argGraph);
+  //graph = EssentialGraph(castGraph(argGraph));
+  
   uint p = graph.getVertexCount();
   
   // Cast list of targets
@@ -342,7 +344,9 @@ RcppExport SEXP greedyStepRFunc(
   
   int dir = graph.greedyStepR();
   
-  int res = dir;
+  //delete graph;
+  
+  //int res = dir;
   
   // std::string res = "";
   // 
@@ -368,7 +372,7 @@ RcppExport SEXP greedyStepRFunc(
 //std::string res = std::to_string(dir);
 
   //std::cout << "RES: " << res << "\n";
-  return Rcpp::wrap(res);
+  return Rcpp::wrap(dir);
   
   END_RCPP
 }
