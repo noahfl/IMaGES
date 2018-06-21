@@ -713,7 +713,7 @@ autism_driver <- function() {
   
   
   
-  plotIMGraph(results$results$.single.graphs[[1]])
+  plotIMGraph(results$results$.global)
   #plotIMGraph(results$results$.alt)
   plotMarkovs(results)
   plotAll(results)

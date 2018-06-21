@@ -511,7 +511,17 @@ IMaGES <- setRefClass("IMaGES",
                           for (i in 1:length(.graphs)) {
                             sum <- sum + .graphs[[i]]$.score$global.score.int(.graphs[[i]]$.in.edges)
                           }
-                          imscore <- ((2/m) *  sum) + ((penalty * k) * log(n))
+                          
+                          imscore <- tryCatch(
+                            {
+                              res <- log((2/m) *  sum + ((penalty * k) * log(n)) + 50)
+                            },
+                            error = function(e) {
+                              imscore <- (2/m) *  sum + ((penalty * k) * log(n))
+                            }
+                          )
+                          
+                          
                           return(imscore)
                         },
                         
@@ -589,7 +599,7 @@ IMaGES <- setRefClass("IMaGES",
                             # if it is higher, bump lowest markov and sort in the new one
                             #exclude graphs that are identical since that's not too helpful
                             res <- (score > trueIM$markovs[[i]]$.score)
-                            if (score > trueIM$markovs[[i]]$.score && !is.null(score) && !is.null(trueIM$markovs[[i]]$.score)) {
+                            if ( !is.nan(score) && score > trueIM$markovs[[i]]$.score && !is.null(score) && !is.null(trueIM$markovs[[i]]$.score)) {
                               #converted <- convert(list(.in.edges = graph$.in.edges, .nodes = graph$.nodes))
                               if (use.verbose) {
                                print("New graph being inserted into MEC") 
@@ -642,9 +652,9 @@ IMaGES <- setRefClass("IMaGES",
                           #print(edge.list[,1])
                           #print(edge.list[,2])
                           model <- paste(edge.list[,1], "~", edge.list[,2])
-                          print("----------")
-                          print(model)
-                          print(typeof(model))
+                          #print("----------")
+                          #print(model)
+                          #print(typeof(model))
   
                           estimate <- tryCatch(
                             {
@@ -653,14 +663,30 @@ IMaGES <- setRefClass("IMaGES",
                               round(estimate,2)
 
                             },
-                            error=function(cond) {
-                              message("Model is either singular or does not converge. Values are being
-                                      replaced with zeros.")
+                            error = function(cond) {
+                              # if ("singular" %in% cond[[1]] || "converge" %in% cond[[1]]) {
+                              #   message("Error thrown while calculating SEM data. Values are being
+                              #         replaced with zeros so you can still graph the structure.")
+                              #   message("Original error message:")
+                              #   message(cond)
+                              #   return(rep(0,length(model)))
+                              # }
+                              message("Error thrown while calculating SEM data. Values are being
+                                      replaced with zeros so you can still graph the structure.")
                               message("Original error message:")
                               message(cond)
+                              cat("\n")
+                              return(rep(0,length(model)))
                               # Choose a return value in case of error
-                              return(repr(0,length(model)))
+                              # fit <- lavaan::sem(model, data=data.frame(dataset))
+                              # estimate <- lavaan::partable(fit)$est
+                              # return(round(estimate,2))
+
                             })
+                          
+                          # fit <- lavaan::sem(model, data=data.frame(dataset))
+                          # estimate <- lavaan::partable(fit)$est
+                          # round(estimate,2)
                           
                           # fit <- lavaan::sem(model, data=data.frame(dataset))
                           # estimate <- lavaan::partable(fit)$est
@@ -671,7 +697,7 @@ IMaGES <- setRefClass("IMaGES",
                           # print(typeof(estimate))
 
                           names(estimate) <- graph::edgeNames(converted)
-                          print(estimate)
+                          #print(estimate)
                           return(estimate)
                         },
                         
@@ -761,12 +787,25 @@ IMaGES$methods(
     
     trueIM$markovs <- rep(list(list(.graph=NULL, .score=-2147483648)), num.markovs)
     run.nums <- ncol(.graphs[[1]]$.score$pp.dat$data) * ncol(.graphs[[1]]$.score$pp.dat$data)
+    num.equal <- 0
+    prev.score <- -2147483648
     for (i in 1:run.nums) {
       #run IMaGES
       if(use.verbose) {
         print(paste("Run ", i, " of ", run.nums))
       }
       run()
+      if ( !is.nan(IMScore()) && !is.nan(prev.score) && IMScore() == prev.score) {
+        num.equal = num.equal + 1
+      }
+      else {
+        num.equal = 0
+        prev.score = IMScore()
+      }
+      if (num.equal == 5) {
+        print("Stopping early. IMaGES run has converged on a solution.")
+        break
+      }
     }
     
     #de-double the edge directions
@@ -784,9 +823,9 @@ IMaGES$methods(
     #apply SEM and structure the results 
     single.graphs <- list()
     params.list <- list()
-    converted <- convert(list(.in.edges = graphs[[1]]$.in.edges, .nodes = .graphs[[1]]$.nodes))
+    converted <- convert(list(.in.edges = .graphs[[1]]$.in.edges, .nodes = .graphs[[1]]$.nodes))
     for (i in 1:length(.graphs)) {
-      params <- apply.sem(converted, .graphs[[i]]$.score$pp.dat$raw.data)
+      params <- apply.sem(converted, .graphs[[i]]$.score$pp.dat$data)
       #removing NA data
       for (k in 1:length(params)) {
         if (is.na(names(params[k]))) {
