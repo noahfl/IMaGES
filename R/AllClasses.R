@@ -676,12 +676,12 @@ setRefClass("DataScore",
           # pp.dat$targets <<- lapply(targets, sort)
           pp.dat$target.index <<- targetList$target.index[perm]
           base <- 10
-          nonlinear <- log(((1 + data[perm, ])/(data[perm, ])), base)
+          #nonlinear <- log(((1 + data[perm, ])/(data[perm, ])), base)
           #print(nonlinear)
           #print(paste("MAX: ", max(nonlinear)))
           #pp.dat$data <<- nonlinear
           pp.dat$data <<- data[perm, ]
-          pp.dat$raw.data <<- data[perm, ]
+          #pp.dat$raw.data <<- data[perm, ]
           pp.dat$vertex.count <<- ncol(data)
           
           
