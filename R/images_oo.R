@@ -509,17 +509,20 @@ IMaGES <- setRefClass("IMaGES",
                           trueIM$isLocalIM <- FALSE
 
                           for (i in 1:length(.graphs)) {
+                            #print(paste("add: ", .graphs[[i]]$.score$global.score.int(.graphs[[i]]$.in.edges)))
                             sum <- sum + .graphs[[i]]$.score$global.score.int(.graphs[[i]]$.in.edges)
                           }
                           
-                          imscore <- tryCatch(
-                            {
-                              res <- log((2/m) *  sum + ((penalty * k) * log(n)) + 50)
-                            },
-                            error = function(e) {
-                              imscore <- (2/m) *  sum + ((penalty * k) * log(n))
-                            }
-                          )
+                          imscore <- (2/m) *  sum + ((penalty * k) * log(n))
+                          
+                          # imscore <- tryCatch(
+                          #   {
+                          #     log((2/m) *  sum + ((penalty * k) * log(n)) + 50)
+                          #   },
+                          #   error = function(e) {
+                          #     return((2/m) *  sum + ((penalty * k) * log(n)))
+                          #   }
+                          # )
                           
                           
                           return(imscore)

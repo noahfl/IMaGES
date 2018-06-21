@@ -875,22 +875,28 @@ setRefClass("GaussL0penIntScore",
           }
 
           ## Return local score
+          #print(paste("suspect: ", sigma2/pp.dat$data.count[vertex]))
           result <- -0.5*pp.dat$data.count[vertex]*(1 + log(sigma2/pp.dat$data.count[vertex])) - pp.dat$lambda*(1 + length(parents))
+          ret <- result
           
-          if (!(get("isLocalIM", envir=trueIM))) {
-            ret <- result
-            #return(result)
-            #print(paste("Test var: ", get("score", envir=trueIM)))
+          if (is.infinite(ret)) {
+            ret <- -2147483648
           }
-          else {
-            oldRet <- ((get("score", envir=trueIM)/get("numDatasets",envir=trueIM))/pp.dat$vertex.count)
-            
-            ret <- (oldRet + result) / 2
-            #ret <- oldRet
-            
-            #print(paste("local IM: ", oldRet, "vs local score: ", result, "average: ", ret, "num data sets: ", get("numDatasets",envir=trueIM)))
-            #return(ret)
-          }
+          #print(paste("ret: ", ret))
+          # if (!(get("isLocalIM", envir=trueIM))) {
+          #   ret <- result
+          #   #return(result)
+          #   #print(paste("Test var: ", get("score", envir=trueIM)))
+          # }
+          # else {
+          #   oldRet <- ((get("score", envir=trueIM)/get("numDatasets",envir=trueIM))/pp.dat$vertex.count)
+          #   
+          #   ret <- (oldRet + result) / 2
+          #   #ret <- oldRet
+          #   
+          #   #print(paste("local IM: ", oldRet, "vs local score: ", result, "average: ", ret, "num data sets: ", get("numDatasets",envir=trueIM)))
+          #   #return(ret)
+          # }
           #print(paste("Test var: ", get("score", envir=trueIM)))
           #print(paste("res: ", res, "lambda: ", pp.dat$lambda))
           return(ret)
