@@ -267,7 +267,7 @@ IMaGES <- setRefClass("IMaGES",
                           else if (opt == 2) {
                             str_opt <- 'GIES-B'
                             if (use.verbose) {
-                              print("Nackward pass selected")
+                              print("Backward pass selected")
                             }
                           }
                           else if (opt == 3) {
