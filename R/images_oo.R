@@ -806,7 +806,7 @@ IMaGES$methods(
         prev.score = IMScore()
       }
       if (num.equal == 5) {
-        print("Stopping early. IMaGES run has converged on a solution.")
+        print("Stopping early. IMaGES run has converged on a representative graph.")
         break
       }
     }
@@ -822,12 +822,18 @@ IMaGES$methods(
       }
     }
     
+    if (use.verbose) {
+      print("Applying structural equation modeling to graphs.")
+    }
     
     #apply SEM and structure the results 
     single.graphs <- list()
     params.list <- list()
     converted <- convert(list(.in.edges = .graphs[[1]]$.in.edges, .nodes = .graphs[[1]]$.nodes))
     for (i in 1:length(.graphs)) {
+      if (use.verbose) {
+        print(paste("Applied to graph ", i))
+      }
       params <- apply.sem(converted, .graphs[[i]]$.score$pp.dat$data)
       #removing NA data
       for (k in 1:length(params)) {
@@ -842,26 +848,36 @@ IMaGES$methods(
       single.graphs[[i]] <-list(.graph = single.converted, .params = params)
     }
     
-    print("Done.")
+    print("Done with IMaGES run")
 
     print(paste("Final IMScore: ", trueIM$score))
     global <- list(.graph = converted, .params = average.sem(params.list))
     markovs <- list()
+    
+    if (use.verbose) {
+      print("Applying structural equation modeling to markov equivalence class.")
+    }
 
     #only add markovs from list that aren't NULL
     for (i in 1:num.markovs) {
       attempt <- tryCatch(
         {
+          if (use.verbose) {
+            print(paste("Applied to MEC ", i))
+          }
           converted.markov <- convert(list(.in.edges = fix.edges(trueIM$markovs[[i]]$.graph), .nodes = .graphs[[1]]$.nodes))
           markovs[[i]] <- list(.graph=converted.markov, .params = apply.sem(converted.markov, trueIM$markovs[[i]]$.data))
         },
         error = function(e) {
+          print(paste("MEC ", i, " encountered an error while calculating SEM data. Set to NULL"))
           markovs[[i]] <- NULL
         }
       )
 
     }
-    
+    if (use.verbose) {
+      print("Calculating means and standard errors")
+    }
     means <- single.graphs[[1]]$.params
     
     if (length(single.graphs) > 1) {
@@ -893,7 +909,9 @@ IMaGES$methods(
       std.err <- sigma / sqrt(length(.graphs))
       std.errs[i] <- std.err
     }
-    
+    if (use.verbose) {
+      print("Finished.")
+    }
     results <<- list(.global = global, .single.graphs = single.graphs, .markovs = markovs, .means = means, .std.errs = std.errs)
     return(results)
   }
