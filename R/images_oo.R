@@ -207,7 +207,7 @@ IMaGES <- setRefClass("IMaGES",
                           #assign("score", imscore, envir=trueIM)
                           
                           if (use.verbose) {
-                            print(paste("Updaed IMScore: ", imscore))
+                            print(paste("Updated IMScore: ", imscore))
                           }
                           trueIM$score <- imscore
                         },
