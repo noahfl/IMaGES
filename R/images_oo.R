@@ -698,7 +698,9 @@ IMaGES <- setRefClass("IMaGES",
                           # print("+++++++")
                           # print(estimate)
                           # print(typeof(estimate))
-
+                          rm(graph.nodes)
+                          rm(edge.list)
+                          rm(model)
                           names(estimate) <- graph::edgeNames(converted)
                           #print(estimate)
                           return(estimate)
