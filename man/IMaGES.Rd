@@ -16,6 +16,7 @@ the IMaGES algorithm}
   \item{penalty}{Node labels; by default, they are determined from the scoring
     object.}
   \item{num.markovs}{Number of graphs to store in the Markov equivalence class.}
+  \item{use.verbose}{boolean value indicating whether or not the run will output things such as step direction, current IMScore, step number, and whether or not early stopping is kicking in.}
 }
 \details{
 
@@ -40,6 +41,14 @@ the IMaGES algorithm}
     
     
   }
+    During each step, the IMaGES algorithm simulates the addition, deletion, or turning
+    of an edge for each individual dataset. The step that most augments the score (each
+    edge is assigned a SEM BIC score) for the individual dataset is selected, and the
+    global step across all datasets is selected by finding the most commonly recommended
+    step. The algorithm then executes that step and updated the IMScore accordingly. This
+    repeats for (number of nodes)**2 or until the algorithm detects that no steps augment 
+    the score for five consecutive iterations (also known as 'early stopping').
+    
     These operations are carried out and result in a global representative graph
     and a Markov Equivalence Class.
 
@@ -108,16 +117,16 @@ for (i in 1:length(true.list)) {
 }
 
 #plot graph with SEM data from first dataset
-plotIMGraph(im.fits$results$.single.graph[[1]])
+plotIMGraph(im.fits$.single.graph[[1]])
 
 #plot MEC
 plotMarkovs(im.fits)
 
 #print mean SEM values for each edge
-print(im.fits$results$.means)
+print(im.fits$.means)
 
 #print standard errors for each edge
-print(im.fits$results$.std.errs)
+print(im.fits$.std.errs)
 
 }
 

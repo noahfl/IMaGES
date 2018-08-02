@@ -11,11 +11,7 @@ This function takes the object returned by an IMaGES run and plots the global st
 ## Load predefined data
 data(IMData)
 
-#run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
-
-#plot global graph alongside Markov Equivalence Class
-plotMarkovs(im.fits)
+plotMarkovs(IMaGES(matrices=data.list, penalty=3, num.markovs=5))
 
 }
 %- maybe also 'usage' for other objects documented here.

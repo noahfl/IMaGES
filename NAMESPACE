@@ -166,12 +166,13 @@ importFrom("Rgraphviz", agopen, layoutGraph, renderGraph)
 export(IMaGES,
        plotIMGraph,
        plotAll,
-       plotMarkovs)
+       plotMarkovs,
+       IMaGES)
 
 
 
-exportClasses(
-              "IMaGES")#,
+#exportClasses(
+#              "IMaGES")#,
               #"IMGraph")
 
 #exportMethods(# needed? "coerce",# <- defined via setAs(., ..) used via  as(A, "class_B")

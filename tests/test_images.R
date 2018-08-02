@@ -437,14 +437,14 @@ plot_error <- function(results) {
     # for (k in 1:length(results[[i]])) {
     #   #use 1 minus error for the sake of presentation
     #   print(results[[i]][[k]])
-    #   f_list[[k]] <- 1 - find_error(results[[i]][[k]]$results$.global$.in.edges)
+    #   f_list[[k]] <- 1 - find_error(results[[i]][[k]]$.global$.in.edges)
     # 
     # }
     #print(f_list)
     #use mean error (although should all be the same) for graph
     #inv_measures[[i]] <- mean(unlist(f_list))
-    print(results[[i]]$results$.global$.graph)
-    inv_measures[[i]] <- 1 - find_error(results[[i]]$results$.global$.graph)
+    print(results[[i]]$.global$.graph)
+    inv_measures[[i]] <- 1 - find_error(results[[i]]$.global$.graph)
     print(inv_measures[[i]])
   }
 
@@ -478,14 +478,14 @@ plot_both <- function(results) {
     # for (k in 1:length(results[[i]])) {
     #   #use 1 minus error for the sake of presentation
     #   print(results[[i]][[k]])
-    #   f_list[[k]] <- 1 - find_error(results[[i]][[k]]$results$.global$.in.edges)
+    #   f_list[[k]] <- 1 - find_error(results[[i]][[k]]$.global$.in.edges)
     # 
     # }
     #print(f_list)
     #use mean error (although should all be the same) for graph
     #inv_measures[[i]] <- mean(unlist(f_list))
-    print(results[[i]]$results$.global$.graph)
-    both <- find_both(results[[i]]$results$.global$.graph)
+    print(results[[i]]$.global$.graph)
+    both <- find_both(results[[i]]$.global$.graph)
     prec_measures[[i]] <- 1 - both$.precision
     rec_measures[[i]] <- 1 - both$.recall
     #print(inv_measures[[i]])
@@ -543,7 +543,7 @@ driver <- function() {
   # 
   # #plot in.edges for each graph
   # for (i in 1:length(orig_fits)) {
-  #   plotIMGraph(orig_fits[[i]]$results$.global)
+  #   plotIMGraph(orig_fits[[i]]$.global)
   # }
   
   #now do the same thing for IMaGES
@@ -558,7 +558,7 @@ driver <- function() {
   
   #plot results
   par(mfrow=c(1,2))
-  plotIMGraph(im_fits$results$.global)
+  plotIMGraph(im_fits$.global)
   plotAll(im_fits)
   
   plotMarkovs(im_fits)
@@ -582,16 +582,16 @@ driver_prob <- function() {
   #matrices <- list(dataset1$x, dataset2$x, dataset3$x)
   #im_run_scores <- create_scores(list(dataset1))
   #run IMaGES
-  im_fits <- new("IMaGES", scores = im_run_scores, penalty=3)
+  im_fits <- IMaGES(scores = im_run_scores, penalty=3)
   #im_fits <- new("IMaGES", matrices=matrices, penalty=3)
   
   
   plotAll(im_fits)
-  plotIMGraph(im_fits$results$.global)
+  plotIMGraph(im_fits$.global)
   
   #plot results
-  # for (i in 1:length(im_fits$results)) {
-  #   plot_graph(im_fits$results[[i]][[2]])
+  # for (i in 1:length(im_fits)) {
+  #   plot_graph(im_fits[[i]][[2]])
   # }
 }
 
@@ -617,7 +617,7 @@ plot_driver <- function() {
     result_sets[[k]] <- im_fits
     
     print(k)
-    #plotIMGraph(im_fits$results$.global)
+    #plotIMGraph(im_fits$.global)
     
     
   }
@@ -628,7 +628,7 @@ plot_driver <- function() {
   # #plots individual sets (might creash computer as it's a lot of plots)
   # for (k in 1:length(result_sets)) {
   #   for (i in 1:length(result_sets[[k]])) {
-  #     plot_graph(result_sets[[k]]$results[[i]][[2]])
+  #     plot_graph(result_sets[[k]][[i]][[2]])
   #   }
   # }
   
@@ -657,7 +657,7 @@ test_driver <- function() {
     #append results to result_sets
     result_sets[[k]] <- im_fits
     print(k)
-    #plotIMGraph(result_sets[[k]]$results$.global)
+    #plotIMGraph(result_sets[[k]]$.global)
     
   }
     
@@ -669,7 +669,7 @@ test_driver <- function() {
   # #plots individual sets (might creash computer as it's a lot of plots)
   # for (k in 1:length(result_sets)) {
   #   for (i in 1:length(result_sets[[k]])) {
-  #     plot_graph(result_sets[[k]]$results[[i]][[2]])
+  #     plot_graph(result_sets[[k]][[i]][[2]])
   #   }
   # }
   
@@ -713,8 +713,8 @@ autism_driver <- function() {
   
   
   
-  plotIMGraph(results$results$.single.graphs[[1]])
-  #plotIMGraph(results$results$.alt)
+  plotIMGraph(results$.single.graphs[[1]])
+  #plotIMGraph(results$.alt)
   plotMarkovs(results)
   plotAll(results)
   
@@ -728,7 +728,7 @@ autism_driver <- function() {
   #plot resulting DAGs
   # for (i in 1:length(results)) {
   #   par(mfrow=c(1,2))
-  #   plot(results$results[[i]][[2]], main = "Estimated CPDAG")
+  #   plot(results[[i]][[2]], main = "Estimated CPDAG")
   # }
 
 }
@@ -754,14 +754,14 @@ powerball_driver <- function() {
   #run IMaGES on data
   results = new("IMaGES", matrices = matrices, penalty=3, num.markovs=6)
   
-  plotIMGraph(results$results$.global)
+  plotIMGraph(results$.global)
   
   plotMarkovs(results)
   
   #plot resulting DAGs
   # for (i in 1:length(results)) {
   #   par(mfrow=c(1,2))
-  #   plot(results$results[[i]][[2]], main = "Estimated CPDAG")
+  #   plot(results[[i]][[2]], main = "Estimated CPDAG")
   # }
   
 }
@@ -789,14 +789,14 @@ test_dataset <- function() {
   
   
   
-  plotIMGraph(results$results$.global)
+  plotIMGraph(results$.global)
   plotAll(results)
   plotMarkovs(results)
   
   #plot resulting DAGs
   # for (i in 1:length(results)) {
   #   par(mfrow=c(1,2))
-  #   plot(results$results[[i]][[2]], main = "Estimated CPDAG")
+  #   plot(results[[i]][[2]], main = "Estimated CPDAG")
   # }
   
 }

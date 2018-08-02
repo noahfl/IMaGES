@@ -1,6 +1,6 @@
 #
 
-IMaGES <- setRefClass("IMaGES",
+IMaGESclass <- setRefClass("IMaGESclass",
                       fields = list(
                         matrices="list",
                         penalty="numeric",
@@ -633,7 +633,7 @@ IMaGES <- setRefClass("IMaGES",
                       )
 )
 
-IMaGES$methods(
+IMaGESclass$methods(
   initialize = function(matrices = NULL, scores = NULL, penalty = 3, imscore = NULL, num.markovs=5) {
     
     # packages <- list("sfsmisc", "graph", "igraph", "lavaan", "Rgraphviz")
@@ -1022,13 +1022,13 @@ plotIMGraph = function(graph.list, title="Global") {
 ## ----------------------------------------------------------------------
 ## Author: Noah Frazier-Logue
 plotAll = function(im.fits) {
-  single.length <- length(im.fits$results$.single.graphs)
+  single.length <- length(im.fits$.single.graphs)
   plot.vals <- find_dimensions(single.length + 1)
   graphics::par(mfrow=plot.vals)
-  plotIMGraph(im.fits$results$.global)
+  plotIMGraph(im.fits$.global)
   
   for (i in 1:single.length) {
-    plotIMGraph(im.fits$results$.single.graphs[[i]], title=paste("Graph ", i))
+    plotIMGraph(im.fits$.single.graphs[[i]], title=paste("Graph ", i))
   }
 }
 
@@ -1039,16 +1039,35 @@ plotAll = function(im.fits) {
 ## ----------------------------------------------------------------------
 ## Author: Noah Frazier-Logue
 plotMarkovs = function(im.fits) {
-  single.length <- length(im.fits$results$.markovs)
+  single.length <- length(im.fits$.markovs)
   #print(single.length)
   plot.vals <- find_dimensions(single.length + 1)
   graphics::par(mfrow=plot.vals)
-  plotIMGraph(im.fits$results$.global)
+  plotIMGraph(im.fits$.global)
   
   for (i in 1:single.length) {
-    plotIMGraph(im.fits$results$.markovs[[i]], title=paste("MEC Graph ", i))
+    plotIMGraph(im.fits$.markovs[[i]], title=paste("MEC Graph ", i))
   }
   
+}
+
+
+## Purpose: wrapper function for IMaGESclass. used to control output
+## so intermediary fields used in IMaGESclass are not accessible
+## ----------------------------------------------------------------------
+##' @param matrices list of datasets in matrix form to be used in IMaGES
+##' @param penalty penalty value to be applied to BIC calculations
+##' @param num.markovs number of Markov Equivalence Classes to return
+##' @param use.verbose boolean indicating whether or not the user wants
+##'                    verbose mode enabled
+##' @return results field from IMaGESclass
+## ----------------------------------------------------------------------
+## Author: Noah Frazier-Logue
+IMaGES = function(matrices = NULL, penalty = 3,
+                  num.markovs = 5, use.verbose = TRUE) {
+  result <- IMaGESclass(matrices=matrices, penalty = penalty,
+                        num.markovs = 5, use.verbose=TRUE)
+  return(result$results)
 }
 
 ### GLOBAL VAR

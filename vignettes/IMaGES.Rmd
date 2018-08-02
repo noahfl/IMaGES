@@ -18,9 +18,25 @@ knitr::opts_chunk$set(
 )
 ```
 
+__Version__ 0.1
+
+__License__ GPL (>= 2)
+
+__LazyData__ true
+
+__Repository__ CRAN
+
+__URL__ https://github.com/noahfl/IMaGES
+
+__BugReports__ https://github.com/noahfl/IMaGES/issues
+
+__NeedsCompilation__ Yes
+
+
+
 ## IMaGES Algorithm
 
-  IMaGES (Independent Multi-sample Greedy Equivalence Search) is a score-based 
+  This package is an implementation of the IMaGES algorithm of Ramsey, Hanson, Hanson,            Halchenko, Poldrack, Glymour (2010) and is adapted from 'GES' as implemented in the 'pcalg'     package. IMaGES (Independent Multi-sample Greedy Equivalence Search) is a score-based 
   algorithm that greedily maximizes a score function similar to the one used
   in the pcalg implementation of GES. It modifies the scoring by creating a
   global score across all datasets and uses this score to determine which 
@@ -41,9 +57,18 @@ knitr::opts_chunk$set(
   that correspond to the reversal of a single arrow in the space of DAGs
   until the score cannot be augmented any more.
   
+  During each step, the IMaGES algorithm simulates the addition, deletion, or turning
+  of an edge for each individual dataset. The step that most augments the score (each
+  edge is assigned a SEM BIC score) for the individual dataset is selected, and the
+  global step across all datasets is selected by finding the most commonly recommended
+  step. The algorithm then executes that step and updated the IMScore accordingly. This
+  repeats for (number of nodes)**2 or until the algorithm detects that no steps augment 
+  the score for five consecutive iterations (also known as 'early stopping').
 
   These operations are carried out and result in a global representative graph
   and a Markov Equivalence Class.
+  
+  
 
 
 ### IMaGES in R
@@ -64,13 +89,13 @@ Running this on the provided sample data returns an IMaGES object with a named l
 
 The IMaGES class is a Reference Class, which means it must called as such:
 
-```{r echo=TRUE, warning=FALSE, include=TRUE}
+```{r eval=FALSE, echo=TRUE, warning=FALSE, include=TRUE}
 require(IMaGES)
 
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5)
 
 ```
 
@@ -91,9 +116,11 @@ require(IMaGES)
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=TRUE)
 
 #plot global graph and all individual graphs with own SEM data
+
+
 plotAll(im.fits)
 ```
 
@@ -113,7 +140,7 @@ require(IMaGES)
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=TRUE)
 
 #plot global graph alongside Markov Equivalence Class
 plotMarkovs(im.fits)
@@ -137,10 +164,10 @@ require(IMaGES)
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=TRUE)
 
 #plot individual graph
-plotIMGraph(im.fits$results$.single.graph[[1]])
+plotIMGraph(im.fits$.single.graph[[1]])
 
 ```
 

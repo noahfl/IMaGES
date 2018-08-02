@@ -9,12 +9,12 @@ plotIMGraph
 This function takes a graph object returned from IMaGES (takes the form of a named list containing \code{.graph} and \code{.params}) and plots it. Using plotAll or plotMarkovs is recommended unless you only want to see one specific graph.
 }
 \usage{
-plotIMGraph(im.fits$results$.global)
+plotIMGraph(graph.object, title="Global")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{graph.object}{Graph object returned as part of IMaGES run
-}
+  \item{graph.object}{Graph object returned as part of IMaGES run}
+  \item{title}{Title of resulting plot of IMGraph}
 }
 
 \value{
@@ -45,7 +45,7 @@ data(IMData)
 im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
 
 #plot individual graph
-plotIMGraph(im.fits$results$.single.graph[[1]], title="Global")
+plotIMGraph(im.fits$.single.graph[[1]], title="Global")
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
