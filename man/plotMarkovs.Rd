@@ -11,7 +11,7 @@ This function takes the object returned by an IMaGES run and plots the global st
 ## Load predefined data
 data(IMData)
 
-plotMarkovs(IMaGES(matrices=data.list, penalty=3, num.markovs=5))
+plotMarkovs(im.fits)
 
 }
 %- maybe also 'usage' for other objects documented here.
