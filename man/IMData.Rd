@@ -14,6 +14,7 @@ a list called \code{IMData}, a list containing three
 data files that can be passed into IMaGES.
 }
 \examples{
+library(graph)
 data(IMData)
 data(IMTrue)
 

@@ -1008,9 +1008,9 @@ find_dimensions = function(number) {
 ##' @param title plot title. defaults to "Global"
 ## ----------------------------------------------------------------------
 ## Author: Noah Frazier-Logue
-plotIMGraph = function(graph.list, title="Global") {
-  graph <- graph.list$.graph
-  params <- graph.list$.params
+plotIMGraph = function(graph.object, title="Global") {
+  graph <- graph.object$.graph
+  params <- graph.object$.params
   finalgraph <- agopen(graph, "", attrs=list(node=list(shape="ellipse")), edgeAttrs=list(label=params))
   Rgraphviz::plot(finalgraph, main=title)
 }
@@ -1063,10 +1063,8 @@ plotMarkovs = function(im.fits) {
 ##' @return results field from IMaGESclass
 ## ----------------------------------------------------------------------
 ## Author: Noah Frazier-Logue
-IMaGES = function(matrices = NULL, penalty = 3,
-                  num.markovs = 5, use.verbose = TRUE) {
-  result <- IMaGESclass(matrices=matrices, penalty = penalty,
-                        num.markovs = 5, use.verbose=TRUE)
+IMaGES = function(...) {
+  result <- IMaGESclass(...)
   return(result$results)
 }
 

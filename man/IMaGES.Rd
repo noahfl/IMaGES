@@ -9,7 +9,8 @@ the IMaGES algorithm}
   Estimate the DAG using the IMaGES algorithm of Ramsey, Hanson, Hanson, Halchenko, Poldrack, Glymour (2010). Adapted from 'GES' as implemented in the 'pcalg' package.
 }
 \usage{
-  IMaGES(matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5)
+  IMaGES(matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5,
+          use.verbose=TRUE)
 }
 \arguments{
   \item{matrices}{A list of (at least one) matrix object(s) to run in the algorithm}
@@ -102,18 +103,20 @@ the IMaGES algorithm}
   \code{\link{plotIMGraph}}, \code{\link{plotAll}}, \code{\link{plotMarkovs}}
 }
 \examples{
+library(graph)
 ## Load predefined data
 data(IMData)
+data(IMTrue)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5)
 
 #plot global graph and all individual graphs with own SEM data
 plotAll(im.fits)
 
 #plot true individual graphs as a comparison
-for (i in 1:length(true.list)) {
-  plot(true.list[[1]])
+for (i in 1:length(IMTrue)) {
+  plot(IMTrue[[1]])
 }
 
 #plot graph with SEM data from first dataset

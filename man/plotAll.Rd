@@ -41,7 +41,7 @@ plotAll(im.fits)
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5)
 
 #plot global graph and all individual graphs with own SEM data
 plotAll(im.fits)

@@ -1,0 +1,13 @@
+cleanup
+.git
+.gitignore
+IMaGES.Rproj
+.Rbuildignore
+.Rproj.user
+.RData
+.README.md.swp
+.Rhistory
+test
+tests
+ignore.txt
+cranscript

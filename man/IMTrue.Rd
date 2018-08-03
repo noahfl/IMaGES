@@ -14,10 +14,11 @@ a list called \code{IMTrue}, a list containing the original
 graph structures for each dataset in \code{IMTrue}.
 }
 \examples{
+library(graph)
 data(IMData)
 data(IMTrue)
 
-result <- IMaGES(matrices=IMTrue)
+result <- IMaGES(matrices=IMData)
 
 plotAll(result)
 

@@ -709,7 +709,7 @@ autism_driver <- function() {
 
   
   #run IMaGES on data
-  results = new("IMaGES", matrices = matrices, penalty=3, num.markovs=5)
+  results = IMaGES(matrices = matrices, penalty=3, num.markovs=5)
   
   
   

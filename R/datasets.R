@@ -24,7 +24,7 @@
 #' plotAll(result)
 #' 
 #' for (i in 1:length(IMTrue)) {
-#'   plot(IMTrue[[i]])
+#'   plotIMGraph(IMTrue[[i]])
 #' }
 #' 
 #' 
@@ -56,7 +56,7 @@
 #' plotAll(result)
 #' 
 #' for (i in 1:length(IMTrue)) {
-#'   plot(IMTrue[[i]])
+#'   plotIMGraph(IMTrue[[i]])
 #' }
 #' 
 #' 

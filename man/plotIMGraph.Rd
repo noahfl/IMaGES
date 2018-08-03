@@ -42,7 +42,7 @@ plotIMGraph(graph.object, title="Global")
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=data.list, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5)
 
 #plot individual graph
 plotIMGraph(im.fits$.single.graph[[1]], title="Global")

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./cleanup
+
+tar -czf ~/IMaGES_0.1.tar.gz --exclude-from=ignore.txt .gitignore ../IMaGES
