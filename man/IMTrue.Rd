@@ -14,7 +14,6 @@ a list called \code{IMTrue}, a list containing the original
 graph structures for each dataset in \code{IMTrue}.
 }
 \examples{
-library(graph)
 data(IMData)
 data(IMTrue)
 
@@ -22,8 +21,10 @@ result <- IMaGES(matrices=IMData)
 
 plotAll(result)
 
+par(mfrow=c(1,length(IMTrue)))
+
 for (i in 1:length(IMTrue)) {
-  plot(IMTrue[[i]])
+  graph::plot(IMTrue[[i]])
 }
 
 

@@ -554,7 +554,7 @@ driver <- function() {
   #create score objects
   im_run_scores <- create_scores(im_run_dags)
   #run IMaGES
-  im_fits <- new("IMaGES", scores = im_run_scores, penalty=2)
+  im_fits <- new("IMaGES", matrices=im_run_dags, penalty=2)
   
   #plot results
   par(mfrow=c(1,2))
@@ -573,21 +573,21 @@ driver_prob <- function() {
   #create DAGS
   #im_run_dags <- create_im_dags(num_sets)
   
-  dataset1 <- make_data(0.28)
+  dataset1 <- make_data(0.3)
   dataset2 <- make_data(0.3)
-  dataset3 <- make_data(0.32)
+  dataset3 <- make_data(0.3)
   
   #create score objects
   im_run_scores <- create_scores(list(dataset1,dataset2,dataset3))
   #matrices <- list(dataset1$x, dataset2$x, dataset3$x)
   #im_run_scores <- create_scores(list(dataset1))
   #run IMaGES
-  im_fits <- IMaGES(scores = im_run_scores, penalty=3)
+  im_fits <- IMaGESclass(scores = im_run_scores, penalty=3)
   #im_fits <- new("IMaGES", matrices=matrices, penalty=3)
   
   
   plotAll(im_fits)
-  plotIMGraph(im_fits$.global)
+  plotIMGraph(im_fits$results$.global)
   
   #plot results
   # for (i in 1:length(im_fits)) {

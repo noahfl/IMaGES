@@ -9,8 +9,8 @@ the IMaGES algorithm}
   Estimate the DAG using the IMaGES algorithm of Ramsey, Hanson, Hanson, Halchenko, Poldrack, Glymour (2010). Adapted from 'GES' as implemented in the 'pcalg' package.
 }
 \usage{
-  IMaGES(matrices = list(matrix1, matrix2....), penalty=3, num.markovs=5,
-          use.verbose=TRUE)
+  IMaGES(matrices, penalty=3, num.markovs=5,
+          use.verbose=FALSE)
 }
 \arguments{
   \item{matrices}{A list of (at least one) matrix object(s) to run in the algorithm}

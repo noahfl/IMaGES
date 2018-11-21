@@ -39,10 +39,10 @@ setOldClass("amat")# our Adjacency Matrics -- are S3 classes (but want some S4 m
 
 ##' as(*, "matrix") methods --- give the adjacency matrices   with a  "type"  attribute
 ##' as(*, "amat")   methods --- adjacency matrix class "amat" with a  "type"  attribute
-setAs("pcAlgo", "matrix",
-      function(from) structure(wgtMatrix(from@graph), type = "amat.cpdag"))
-setAs("pcAlgo", "amat",
-      function(from) structure(wgtMatrix(from@graph), class = "amat", type = "cpdag"))
+# setAs("pcAlgo", "matrix",
+#       function(from) structure(wgtMatrix(from@graph), type = "amat.cpdag"))
+# setAs("pcAlgo", "amat",
+#       function(from) structure(wgtMatrix(from@graph), class = "amat", type = "cpdag"))
 
 setAs("fciAlgo", "matrix",
       function(from) structure(from@amat, type = "amat.pag"))
@@ -163,7 +163,7 @@ setMethod("plot", signature(x = "pcAlgo"),
           function(x, y, main = NULL, zvalue.lwd = FALSE,
                    lwd.max = 7, labels = NULL, ...)
 	{
-          check.Rgraphviz()
+          #check.Rgraphviz()
 
           if(is.null(main))
               main <- deparse(x@call)
@@ -194,48 +194,48 @@ setMethod("plot", signature(x = "pcAlgo"),
           }
       })
 
-setMethod("plot", signature(x = "fciAlgo"),
-          function(x, y, main = NULL, ...)
-      {
-          check.Rgraphviz()
-
-          if(is.null(main))
-	      main <- deparse(x@call)
-	  else ## see also below
-	      warning("main title cannot *not* be set yet [Rgraphviz::plot() deficiency]")
-          amat <- x@amat
-          g <- as(amat,"graphNEL")
-          nn <- nodes(g)
-          p <- numNodes(g)
-          ## n.edges <- numEdges(g) -- is too large:
-          ## rather count edges such that  "<-->" counts as 1 :
-          n.edges <- numGedges(amat)
-          ahs <- ats <- rep("none", n.edges)
-          nms <- character(n.edges)
-          cmat <- array(c("0" = "none",   "1" = "odot",
-                          "2" = "normal", "3" = "none")[as.character(amat)],
-                        dim = dim(amat), dimnames = dimnames(amat))
-          iE <- 0L
-          for (i in seq_len(p-1)) {
-              x <- nn[i]
-              for (j in (i+1):p) {
-                  y <- nn[j]
-                  if (amat[x,y] != 0) {
-                      iE <- iE + 1L
-                      ahs[[iE]] <- cmat[x,y]
-                      ats[[iE]] <- cmat[y,x]
-                      nms[[iE]] <- paste0(x,"~",y)
-                  }
-              }
-          }
-          names(ahs) <- names(ats) <- nms
-	  edgeRenderInfo(g) <- list(arrowhead = ahs, arrowtail = ats)
-          ## XXX Sep/Oct 2010  --- still current -- FIXME ??
-          ## XXX undid change by MM, since edge marks didn't work anymore
-          ## XXX "known bug in Rgraphviz, but not something they may fix soon"
-	  ## Rgraphviz::plot(g, main = main, ...)
-          Rgraphviz::renderGraph(Rgraphviz::layoutGraph(g))
-      })
+# setMethod("plot", signature(x = "fciAlgo"),
+#           function(x, y, main = NULL, ...)
+#       {
+#           #check.Rgraphviz()
+# 
+#           if(is.null(main))
+# 	      main <- deparse(x@call)
+# 	  else ## see also below
+# 	      warning("main title cannot *not* be set yet [Rgraphviz::plot() deficiency]")
+#           amat <- x@amat
+#           g <- as(amat,"graphNEL")
+#           nn <- nodes(g)
+#           p <- numNodes(g)
+#           ## n.edges <- numEdges(g) -- is too large:
+#           ## rather count edges such that  "<-->" counts as 1 :
+#           #n.edges <- numGedges(amat)
+#           ahs <- ats <- rep("none", n.edges)
+#           nms <- character(n.edges)
+#           cmat <- array(c("0" = "none",   "1" = "odot",
+#                           "2" = "normal", "3" = "none")[as.character(amat)],
+#                         dim = dim(amat), dimnames = dimnames(amat))
+#           iE <- 0L
+#           for (i in seq_len(p-1)) {
+#               x <- nn[i]
+#               for (j in (i+1):p) {
+#                   y <- nn[j]
+#                   if (amat[x,y] != 0) {
+#                       iE <- iE + 1L
+#                       ahs[[iE]] <- cmat[x,y]
+#                       ats[[iE]] <- cmat[y,x]
+#                       nms[[iE]] <- paste0(x,"~",y)
+#                   }
+#               }
+#           }
+#           names(ahs) <- names(ats) <- nms
+# 	  edgeRenderInfo(g) <- list(arrowhead = ahs, arrowtail = ats)
+#           ## XXX Sep/Oct 2010  --- still current -- FIXME ??
+#           ## XXX undid change by MM, since edge marks didn't work anymore
+#           ## XXX "known bug in Rgraphviz, but not something they may fix soon"
+# 	  ## Rgraphviz::plot(g, main = main, ...)
+#           Rgraphviz::renderGraph(Rgraphviz::layoutGraph(g))
+#       })
 
 #######################################################
 ### Part 2 : Reference classes and Methods used by GIES

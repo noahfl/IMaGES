@@ -14,17 +14,12 @@ a list called \code{IMData}, a list containing three
 data files that can be passed into IMaGES.
 }
 \examples{
-library(graph)
 data(IMData)
-data(IMTrue)
 
 result <- IMaGES(matrices=IMData)
 
 plotAll(result)
 
-for (i in 1:length(IMTrue)) {
-  plot(IMTrue[[i]])
-}
 
 
 }

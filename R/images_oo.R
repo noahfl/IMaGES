@@ -9,7 +9,8 @@ IMaGESclass <- setRefClass("IMaGESclass",
                         imscore = "numeric",
                         results="list",
                         scores = "list",
-                        num.markovs = "numeric"),
+                        num.markovs = "numeric",
+                        use.verbose = "logical"),
                    
                       methods = list(
                         
@@ -159,8 +160,16 @@ IMaGESclass <- setRefClass("IMaGESclass",
                         ## Author: Noah Frazier-Logue
                         update_score = function() {
                           
+                          if (use.verbose) {
+                            print("Updating IMScore...")
+                          }
+                          
                           im.score <- IMScore()
                           #assign("score", imscore, envir=trueIM)
+                          
+                          if (use.verbose) {
+                            print(paste("Updated IMScore: ", im.score))
+                          }
                           trueIM$score <- im.score
                         },
                         
@@ -189,6 +198,10 @@ IMaGESclass <- setRefClass("IMaGESclass",
                           
                           opt_phases = list()
                           
+                          if (use.verbose) {
+                            print("Selecting optimal step...")
+                          }
+                          
                           #call C++ function that determines best step for each graph
                           for (j in 1:length(.graphs)) {
                             opt_phases[[j]] <- .Call("greedyStepRFunc",
@@ -208,15 +221,27 @@ IMaGESclass <- setRefClass("IMaGESclass",
                           #run_phase
                           if (opt == 1) {
                             str_opt <- 'GIES-F'
+                            if (use.verbose) {
+                              print("Forward pass selected")
+                            }
                           }
                           else if (opt == 2) {
                             str_opt <- 'GIES-B'
+                            if (use.verbose) {
+                              print("Backward pass selected")
+                            }
                           }
                           else if (opt == 3) {
                             str_opt <- 'GIES-T'
+                            if (use.verbose) {
+                              print("Turning pass selected")
+                            }
                           }
                           else if (opt == 0) {
                             str_opt <- 'none'
+                            if (use.verbose) {
+                              print("No step selected")
+                            }
                           }
                           
                           temp.scores <- vector()
@@ -235,6 +260,10 @@ IMaGESclass <- setRefClass("IMaGESclass",
                               .graphs[[j]]$redo.step()
                               #see if graph j is in MEC
                               if (length(.graphs[[j]]$.in.edges) > 0) {
+                                
+                                if (use.verbose) {
+                                  print("Updating markov equivalence class")
+                                }
                                 update.markovs(.graphs[[j]], temp.scores[[j]])
                               }
                             }
@@ -550,6 +579,10 @@ IMaGESclass <- setRefClass("IMaGESclass",
                               true <- list(.in.edges=trueIM$markovs[[i]]$.graph, .nodes=graph$.nodes)
                               #don't include duplicate graphs 
                               if (is.identical(graph1$.in.edges, true$.in.edges)) {
+                                rm(true)
+                                if (use.verbose) {
+                                  print("No new MEC found") 
+                                }
                                 return()
                               }
                             }
@@ -560,6 +593,10 @@ IMaGESclass <- setRefClass("IMaGESclass",
                             #exclude graphs that are identical since that's not too helpful
                             res <- (score > trueIM$markovs[[i]]$.score)
                             if (score > trueIM$markovs[[i]]$.score && !is.null(score) && !is.null(trueIM$markovs[[i]]$.score)) {
+                              
+                              if (use.verbose) {
+                                print("New graph being inserted into MEC") 
+                              }
                               markov <- list(.graph=graph$.in.edges, .score=score, .data=graph$.score$pp.dat$data)#,
                                                           #.params=apply.sem(converted, graph$.score$pp.dat$data))
                               num.markovs <<- num.markovs
@@ -634,21 +671,18 @@ IMaGESclass <- setRefClass("IMaGESclass",
 )
 
 IMaGESclass$methods(
-  initialize = function(matrices = NULL, scores = NULL, penalty = 3, imscore = NULL, num.markovs=5) {
-    
-    # packages <- list("sfsmisc", "graph", "igraph", "lavaan", "Rgraphviz")
-    # 
-    # for (i in 1:length(packages)) {
-    #   if(!(packages[[i]] %in% (.packages()))) {
-    #     stop(paste("Package '", packages[[i]], "' is not loaded. Please load to use IMaGES"))
-    #   }
-    # }
+  initialize = function(matrices = NULL,
+                        scores = NULL,
+                        penalty = 3,
+                        imscore = NULL,
+                        num.markovs=5, 
+                        use.verbose=FALSE) {
     
     rawscores <- list()
     #handling raw matrices
     if (!is.null(matrices)) {
       trueIM$numDatasets <- length(matrices)
-      #create score objects
+      #create score objects from GES
       for (i in 1:length(matrices)) {
         rawscores[[i]] <- new("GaussL0penObsScore", matrices[[i]], lambda = penalty)
       }  
@@ -662,6 +696,7 @@ IMaGESclass$methods(
       }
     }
     
+    use.verbose <<- use.verbose
     penalty <<- penalty
     .rawscores <<- rawscores
     graphs <- list()
@@ -675,6 +710,10 @@ IMaGESclass$methods(
     
     initialize.global()
     
+    if (use.verbose) {
+      print("Verbose mode selected.")
+    }
+    
     print("Running...")
     
     #create list of size num.markovs
@@ -683,10 +722,27 @@ IMaGESclass$methods(
     num.markovs <<- num.markovs
     
     trueIM$markovs <- rep(list(list(.graph=NULL, .score=-2147483648)), num.markovs)
-    
-    for (i in 1:(ncol(.graphs[[1]]$.score$pp.dat$data) * ncol(.graphs[[1]]$.score$pp.dat$data))) {
+    num.runs <- ncol(.graphs[[1]]$.score$pp.dat$data) * ncol(.graphs[[1]]$.score$pp.dat$data)
+    num.equal <- 0
+    prev.score <- -2147483648
+    for (i in 1:num.runs) {
       #run IMaGES
       run()
+      if(use.verbose) {
+        print(paste("Run ", i, " of ", num.runs))
+      }
+      #determine if early stopping should be used
+      if ( !is.nan(IMScore()) && !is.nan(prev.score) && IMScore() == prev.score) {
+        num.equal = num.equal + 1
+      }
+      else {
+        num.equal = 0
+        prev.score = IMScore()
+      }
+      if (num.equal == 5) {
+        print("Stopping early. IMaGES run has converged on a representative graph.")
+        break
+      }
     }
     
     #de-double the edge directions
@@ -694,18 +750,24 @@ IMaGESclass$methods(
     
     
     #apply double-edge fix to the rest of the graphs
-    if (length(.graphs) > 1) {
-      for (i in 2:length(.graphs)) {
-        .graphs[[i]]$.in.edges <- .graphs[[1]]$.in.edges
-      }
-    }
+    # if (length(.graphs) > 1) {
+    #   for (i in 2:length(.graphs)) {
+    #     .graphs[[i]]$.in.edges <- .graphs[[1]]$.in.edges
+    #   }
+    # }
     
+    if (use.verbose) {
+      print("Applying structural equation modeling to graphs.")
+    }
     
     #apply SEM and structure the results 
     single.graphs <- list()
     params.list <- list()
     converted <- convert(list(.in.edges = graphs[[1]]$.in.edges, .nodes = .graphs[[1]]$.nodes))
     for (i in 1:length(.graphs)) {
+      if (use.verbose) {
+        print(paste("Applied to graph ", i))
+      }
       params <- apply.sem(converted, .graphs[[i]]$.score$pp.dat$raw.data)
       #removing NA data
       for (k in 1:length(params)) {
@@ -720,20 +782,48 @@ IMaGESclass$methods(
       single.graphs[[i]] <-list(.graph = single.converted, .params = params)
     }
     
-    print("Done.")
+    print("Done with IMaGES run.")
+    
+    means <- single.graphs[[1]]$.params
+    
+    
+    if (length(single.graphs) > 1) {
+      for (i in 2:length(single.graphs)) {
+        for (k in 1:length(single.graphs[[i]]$.params)) {
+          means[k] <- as.numeric(means[k]) + as.numeric(single.graphs[[i]]$.params[k])
+        }
+      }
+    }
+    
+    #means.fixed <- means
+    for (i in 1:length(means)) {
+      means[i] <- as.numeric(format(round(as.numeric(means[i]) / length(.graphs), 2), nsmall=2))
+    }
+    
+    
+    
 
     print(paste("Final IMScore: ", trueIM$score))
-    global <- list(.graph = converted, .params = average.sem(params.list))
+    #global <- list(.graph = converted, .params = average.sem(params.list))
+    global <- list(.graph = converted, .params = means)
     markovs <- list()
 
+    if (use.verbose) {
+      print("Applying structural equation modeling to markov equivalence class.")
+    }
+    
     #only add markovs from list that aren't NULL
     for (i in 1:num.markovs) {
       attempt <- tryCatch(
         {
           converted.markov <- convert(list(.in.edges = fix.edges(trueIM$markovs[[i]]$.graph), .nodes = .graphs[[1]]$.nodes))
           markovs[[i]] <- list(.graph=converted.markov, .params = apply.sem(converted.markov, trueIM$markovs[[i]]$.data))
+          if (use.verbose) {
+            print(paste("Applied to MEC ", i))
+          }
         },
         error = function(e) {
+          print(paste("MEC ", i, " encountered an error while calculating SEM data. Set to NULL so graph can still be displayed."))
           markovs[[i]] <- NULL
         }
       )
@@ -745,19 +835,28 @@ IMaGESclass$methods(
       return(results)
     }
     
-    means <- single.graphs[[1]]$.params
-     
-    if (length(single.graphs) > 1) {
-      for (i in 2:length(single.graphs)) {
-        for (k in 1:length(single.graphs[[i]]$.params)) {
-          means[k] <- means[k] + single.graphs[[i]]$.params[k]
-        }
-      }
-    }
-
-    #means.fixed <- means
-    for (i in 1:length(means)) {
-      means[i] <- means[i] / length(.graphs)
+    
+    #means <- average.sem(params)
+    
+    # means <- single.graphs[[1]]$.params
+    # 
+    # 
+    # if (length(single.graphs) > 1) {
+    #   for (i in 2:length(single.graphs)) {
+    #     for (k in 1:length(single.graphs[[i]]$.params)) {
+    #       means[k] <- means[k] + single.graphs[[i]]$.params[k]
+    #     }
+    #   }
+    # }
+    # 
+    # #means.fixed <- means
+    # for (i in 1:length(means)) {
+    #   means[i] <- format(round(means[i] / length(.graphs), 2), nsmall=2)
+    # }
+    
+    
+    if (use.verbose) {
+      print("Calculating means and standard errors")
     }
     
     std.errs <- means
@@ -775,7 +874,9 @@ IMaGESclass$methods(
       std.err <- sigma / sqrt(length(.graphs))
       std.errs[i] <- std.err
     }
-    
+    if (use.verbose) {
+      print("Finished.")
+    }
     results <<- list(.global = global, .single.graphs = single.graphs, .markovs = markovs, .means = means, .std.errs = std.errs)
     return(results)
   }
@@ -1008,11 +1109,22 @@ find_dimensions = function(number) {
 ##' @param title plot title. defaults to "Global"
 ## ----------------------------------------------------------------------
 ## Author: Noah Frazier-Logue
-plotIMGraph = function(graph.object, title="Global") {
+plotIMGraph = function(graph.object, title="Global") {#, layout=NULL) {
+  
+  #TODO: convert to igraph calls
+  #figure out how to make graphs scale to fill individual cells
   graph <- graph.object$.graph
   params <- graph.object$.params
-  finalgraph <- agopen(graph, "", attrs=list(node=list(shape="ellipse")), edgeAttrs=list(label=params))
+  finalgraph <- Rgraphviz::agopen(graph, "", attrs=list(node=list(shape="ellipse")), edgeAttrs=list(label=params))
   Rgraphviz::plot(finalgraph, main=title)
+  # graph <- igraph::igraph.from.graphNEL(graph.object$.graph)
+  # params <- graph.object$.params
+  # 
+  # if (is.null(layout)) {
+  #   layout <- igraph::layout_(graph, with_fr())
+  # }
+  # 
+  # igraph::plot.igraph(graph, edge.label=params, layout=layout, main=title, edge.arrow.size=0.1, vertex.size=30)
 }
 
 ## Purpose: plot global and individual graphs in a grid using the object
@@ -1025,10 +1137,17 @@ plotAll = function(im.fits) {
   single.length <- length(im.fits$.single.graphs)
   plot.vals <- find_dimensions(single.length + 1)
   graphics::par(mfrow=plot.vals)
+  
+  # graph <- igraph::igraph.from.graphNEL(im.fits$.global$.graph)
+  # layout <- igraph::layout_(graph, igraph::with_fr())
+  #plotIMGraph(im.fits$.global, layout=layout)
   plotIMGraph(im.fits$.global)
   
+
+  
+  
   for (i in 1:single.length) {
-    plotIMGraph(im.fits$.single.graphs[[i]], title=paste("Graph ", i))
+    plotIMGraph(im.fits$.single.graphs[[i]], title=paste("Graph ", i))#, layout=layout)
   }
 }
 
@@ -1063,8 +1182,8 @@ plotMarkovs = function(im.fits) {
 ##' @return results field from IMaGESclass
 ## ----------------------------------------------------------------------
 ## Author: Noah Frazier-Logue
-IMaGES = function(...) {
-  result <- IMaGESclass(...)
+IMaGES = function(matrices, penalty=3, num.markovs=5, use.verbose=FALSE) {
+  result <- IMaGESclass(matrices, penalty, num.markovs, use.verbose)
   return(result$results)
 }
 

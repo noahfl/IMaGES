@@ -2,7 +2,7 @@
 title: "IMaGES R Package and Algorithm"
 author: "Noah Frazier-Logue, Stephen José Hanson"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{IMaGES}
   %\VignetteEngine{knitr::rmarkdown}
@@ -66,7 +66,7 @@ __NeedsCompilation__ Yes
   the score for five consecutive iterations (also known as 'early stopping').
 
   These operations are carried out and result in a global representative graph
-  and a Markov Equivalence Class.
+  and a Markov equivalence class.
   
   
 
@@ -76,26 +76,29 @@ __NeedsCompilation__ Yes
 #### Description
 
 Running this on the provided sample data returns an IMaGES object with a named list containing: 
-- __.global__ a named list containing \code{.graph}, the global graphNEL
-       object, and ```.params```, the Structural Equation Modeling data for the global graph
+
+- __.global__ a named list containing ```.graph```, the global graphNEL
+       object, and ```.params```, the structural equation modeling data for the global graph
+       
 - __.single.graphs__ a list containing named lists of the same structure as above that corresponds to each individual dataset passsed into IMaGES
 
-- __.markovs__ a list containing named lists of the same structure as above that corresponds to each Markov Equivalence Class (the size of which is specified by the user)
-- __.means__ a list containing the mean values for the SEM data for each edge in the graph
-- __.std.errs__ a list containing the standard errors for the SEM data for each edge in the graph
-- __.graphs__ A list containing the individual graph information, including raw graph data, score information, and intermediary variables
+- __.markovs__ a list containing named lists of the same structure as above that corresponds to each Markov equivalence class (the size of which is specified by the user)
+
+- __.means__ a list containing the mean values for the structural equation modeling data for each edge in the graph
+
+- __.std.errs__ a list containing the standard errors for the structural equation modeling data for each edge in the graph
+
 
 #### Usage
 
-The IMaGES class is a Reference Class, which means it must called as such:
 
-```{r eval=FALSE, echo=TRUE, warning=FALSE, include=TRUE}
+```{r eval=TRUE, echo=TRUE, warning=FALSE, include=TRUE}
 require(IMaGES)
 
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=FALSE)
 
 ```
 
@@ -105,49 +108,47 @@ im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5)
 
 #### Description
 
-This function takes the object returned by an IMaGES run and plots the global structure with its SEM (structural equation modeling) data, as well as the SEM data for each dataset imposed on the global structure. The function determines the dimensions that most closely represent a square and plots the graphs in that fashion.
+This function takes the object returned by an IMaGES run and plots the global structure with its structural equation modeling data, as well as the structural equation modeling data for each dataset imposed on the global structure. The function determines the dimensions that most closely represent a square and plots the graphs in that fashion.
 
 #### Usage
 
-```{r eval=FALSE, warning=FALSE, include=TRUE}
+```{r eval=TRUE, warning=FALSE, include=TRUE}
 require(IMaGES)
 
 ## Load predefined data
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=TRUE)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=FALSE)
 
 #plot global graph and all individual graphs with own SEM data
 
-
+par(mar=c(2,2,2,2))
 plotAll(im.fits)
 ```
 
-<img src="plotAll_plot.png" alt="plotAll result", width=95%>
 
 ### plotMarkovs
 
 #### Description
 
-This function takes the object returned by an IMaGES run and plots the global structure with its SEM (structural equation modeling) data, as well as the SEM data for each Markov Equivalence Class (MEC) and their respective structures. The function determines the dimensions that most closely represent a square and plots the graphs in that fashion.
+This function takes the object returned by an IMaGES run and plots the global structure with its structural equation modeling data, as well as the structural equation modeling data for each Markov equivalence class and their respective structures. The function determines the dimensions that most closely represent a square and plots the graphs in that fashion.
 
 #### Usage
 
-```{r eval=FALSE, warning=FALSE, include=TRUE}
+```{r eval=TRUE, warning=FALSE, include=TRUE}
 require(IMaGES)
 ## Load predefined data
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=TRUE)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=FALSE)
 
-#plot global graph alongside Markov Equivalence Class
+#plot global graph alongside Markov equivalence class
 plotMarkovs(im.fits)
 ```
 
 
-<img src="plotMarkovs_plot.png" alt="plotMarkovs result", width=95%>
 
 ### plotIMGraph
 
@@ -157,19 +158,17 @@ This function takes a graph object returned from IMaGES (takes the form of a nam
 
 #### Usage
 
-```{r eval=FALSE, warning=FALSE, include=TRUE}
+```{r eval=TRUE, warning=FALSE, include=TRUE}
 require(IMaGES)
 
 ## Load predefined data
 data(IMData)
 
 #run IMaGES
-im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=TRUE)
+im.fits <- IMaGES(matrices=IMData, penalty=3, num.markovs=5, use.verbose=FALSE)
 
 #plot individual graph
 plotIMGraph(im.fits$.single.graph[[1]])
 
 ```
 
-
-<img src="plotIMGraph_plot.png" alt="plotIMGraph result", width=95%>

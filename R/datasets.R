@@ -17,15 +17,11 @@
 #'
 #' @examples
 #' data(IMData)
-#' data(IMTrue)
 #' 
 #' result <- IMaGES(matrices=IMData)
 #' 
 #' plotAll(result)
 #' 
-#' for (i in 1:length(IMTrue)) {
-#'   plotIMGraph(IMTrue[[i]])
-#' }
 #' 
 #' 
 "IMData"
@@ -51,12 +47,14 @@
 #' data(IMData)
 #' data(IMTrue)
 #' 
-#' result <- IMaGES(matrices=IMTrue)
+#' result <- IMaGES(matrices=IMData)
 #' 
 #' plotAll(result)
 #' 
+#' par(mfrow=c(1,length(IMTrue)))
+#' 
 #' for (i in 1:length(IMTrue)) {
-#'   plotIMGraph(IMTrue[[i]])
+#'   graph::plot(IMTrue[[i]])
 #' }
 #' 
 #' 
