@@ -2,10 +2,13 @@
 title: "IMaGES R Package and Algorithm"
 author: "Noah Frazier-Logue, Stephen José Hanson"
 date: "`r Sys.Date()`"
-output: rmarkdown::pdf_document
+#output: rmarkdown::pdf_document
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{IMaGES}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{IMaGES}
+  %\VignetteKeyword{Causal Inference}
+  #%\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
 ---
 

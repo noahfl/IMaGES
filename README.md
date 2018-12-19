@@ -1,6 +1,6 @@
 # IMaGES
 
-This is the repository for the R implementation of the IMaGES algorithm. This project was initiated by SJ Hanson (RUBIC, Rutgers University). The repository started as a fork of [pcalg](https://cran.r-project.org/web/packages/pcalg/index.html) and is now a standalone product. The additional code and changes were written/made by Noah Frazier-Logue.
+This is the repository for the R implementation of the IMaGES algorithm. This project was initiated by SJ Hanson (RUBIC, Rutgers University). The repository started as a fork of [pcalg](https://cran.r-project.org/package=pcalg) and is now a standalone product. The additional code and changes were written/made by Noah Frazier-Logue.
 
 IMaGES is based on the paper 
 

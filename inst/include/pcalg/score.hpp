@@ -5,6 +5,7 @@
  * @author Alain Hauser
  * $Id: score.hpp 393 2016-08-20 09:43:47Z alhauser $
  */
+#include "boost/cstdint.hpp"
 
 #ifndef SCORE_HPP_
 #define SCORE_HPP_

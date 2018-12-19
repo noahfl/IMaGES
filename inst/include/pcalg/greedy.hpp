@@ -4,6 +4,7 @@
  * @author Alain Hauser
  * $Id: greedy.hpp 393 2016-08-20 09:43:47Z alhauser $
  */
+#include "boost/cstdint.hpp"
 
 #ifndef GREEDY_HPP_
 #define GREEDY_HPP_

@@ -5,6 +5,8 @@
  * $Id: $
  */
 
+#include "boost/cstdint.hpp"
+
 #include "armaLapack.hpp"
 #include <vector>
 #include <boost/graph/adjacency_list.hpp>
